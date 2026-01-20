@@ -89,6 +89,11 @@
                                         class="w-8 h-8 rounded-full bg-red-100 text-red-600 hover:bg-red-200 hover:scale-110 flex items-center justify-center transition shadow-sm" title="Hapus">
                                     🗑️
                                 </button>
+                                <button wire:click="resetPassword({{ $employee->id }})" 
+        wire:confirm="Reset password pegawai ini menjadi 'password'?"
+        class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 flex items-center justify-center transition" title="Reset Password">
+    🔑
+</button>
                             </div>
                         </td>
                     </tr>

@@ -130,4 +130,16 @@ class EmployeeManager extends Component
         User::find($id)->delete();
         $this->dispatch('roster-updated', message: 'Data Pegawai Dihapus.');
     }
+    public function resetPassword($id)
+    {
+        // KEAMANAN
+        if (auth()->user()->role !== 'admin') return;
+
+        $user = User::find($id);
+        $user->update([
+            'password' => Hash::make('password') // Balikin ke default
+        ]);
+
+        $this->dispatch('roster-updated', message: 'Password ' . $user->name . ' direset menjadi "password"');
+    }
 }
