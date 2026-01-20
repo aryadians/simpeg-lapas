@@ -8,6 +8,7 @@ use App\Models\Shift;
 use App\Models\User;
 use App\Models\LeaveRequest; // PENTING: Import Model Cuti
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class RosterDashboard extends Component
 {
@@ -48,10 +49,16 @@ class RosterDashboard extends Component
     }
 
     // ==========================================
-    // FITUR 1: AUTO GENERATE JADWAL (DENGAN CEK CUTI)
+    // FITUR 1: AUTO GENERATE JADWAL (SECURE & SMART)
     // ==========================================
     public function generateSchedule()
     {
+        // KEAMANAN: Cek Role (Hanya Admin)
+        if (Auth::user()->role !== 'admin') {
+            $this->dispatch('roster-updated', message: 'AKSES DITOLAK: Anda bukan Admin!');
+            return;
+        }
+
         // 1. Tentukan target bulan & tahun berdasarkan tanggal yang sedang dilihat
         $targetDate = $this->startDate->copy();
         $month = $targetDate->month;
@@ -116,7 +123,7 @@ class RosterDashboard extends Component
             }
         }
 
-        // 6. Simpan Data
+        // 6. Simpan Data (Bulk Insert)
         foreach (array_chunk($rostersToInsert, 500) as $chunk) {
             Roster::insert($chunk);
         }
@@ -127,10 +134,15 @@ class RosterDashboard extends Component
     }
 
     // ==========================================
-    // FITUR 2: EDIT MANUAL (MODAL POPUP)
+    // FITUR 2: EDIT MANUAL (SECURE MODAL)
     // ==========================================
     public function editRoster($rosterId)
     {
+        // KEAMANAN: Staff tidak boleh buka modal edit
+        if (Auth::user()->role !== 'admin') {
+            return;
+        }
+
         $roster = Roster::with('user')->find($rosterId);
 
         if ($roster) {
@@ -143,6 +155,11 @@ class RosterDashboard extends Component
 
     public function saveRoster()
     {
+        // KEAMANAN: Double Check saat simpan
+        if (Auth::user()->role !== 'admin') {
+            return;
+        }
+
         $roster = Roster::find($this->selectedRosterId);
 
         if ($roster) {
@@ -171,7 +188,7 @@ class RosterDashboard extends Component
             ->get()
             ->groupBy('date');
 
-        // 2. Statistik Grafik (FIX: Mengikuti Bulan Kalender)
+        // 2. Statistik Grafik (Mengikuti Bulan Kalender)
         $shiftStats = Roster::whereMonth('date', $this->startDate->month)
             ->whereYear('date', $this->startDate->year)
             ->with('shift')
@@ -179,7 +196,7 @@ class RosterDashboard extends Component
             ->groupBy('shift.name')
             ->map->count();
 
-        // 3. Statistik Kartu
+        // 3. Statistik Kartu (Realtime Hari Ini)
         $todayStats = [
             'total_pegawai' => User::count(),
             'dinas_malam' => Roster::where('date', Carbon::today())

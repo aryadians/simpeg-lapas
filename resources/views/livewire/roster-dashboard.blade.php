@@ -10,17 +10,20 @@
         </div>
         
         <div class="flex space-x-3">
-            {{-- TOMBOL BARU: AUTO GENERATE --}}
+            {{-- TOMBOL BARU: AUTO GENERATE (HANYA ADMIN) --}}
+            @if(auth()->user()->role === 'admin')
             <button wire:click="generateSchedule" 
                     wire:confirm="Yakin ingin membuat jadwal otomatis untuk bulan ini? Jadwal lama di bulan ini akan dihapus/ditimpa."
                     class="px-5 py-2.5 font-bold text-white bg-emerald-500 rounded-xl shadow-lg hover:bg-emerald-600 transition transform hover:-translate-y-1 flex items-center gap-2 mr-2 border-2 border-emerald-400">
                 <span>⚡ Auto Generate</span>
-                {{-- TOMBOL BARU: CETAK PDF --}}
+            </button>
+            @endif
+
+            {{-- TOMBOL BARU: CETAK PDF --}}
             <a href="/cetak-laporan" target="_blank"
                class="px-5 py-2.5 font-bold text-gray-700 bg-white border border-gray-300 rounded-xl shadow-lg hover:bg-gray-50 transition transform hover:-translate-y-1 flex items-center gap-2 mr-2">
                 <span>🖨️ Cetak PDF</span>
             </a>
-            </button>
 
             {{-- Navigasi Tanggal --}}
             <button wire:click="prevDays" class="px-5 py-2.5 font-bold text-white bg-indigo-500 rounded-xl shadow-lg hover:bg-indigo-600 transition transform hover:-translate-y-1">
@@ -32,51 +35,60 @@
         </div>
     </div>
 
-    {{-- BAGIAN 2: WIDGET STATISTIK & GRAFIK (EXECUTIVE DASHBOARD) --}}
-    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 animate-fade-in-up">
+    {{-- BAGIAN 2: WIDGET ABSENSI & STATISTIK (EXECUTIVE DASHBOARD) --}}
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 mb-10 animate-fade-in-up">
         
-        {{-- Kartu 1: Total Personil --}}
-        <div class="bg-white rounded-2xl p-6 shadow-lg border border-indigo-50 flex items-center justify-between relative overflow-hidden group">
-            <div class="absolute right-0 top-0 h-24 w-24 bg-indigo-100 rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
-            <div>
-                <p class="text-gray-500 text-sm font-medium">Total Pegawai</p>
-                <h3 class="text-3xl font-extrabold text-indigo-900 mt-1">{{ $todayStats['total_pegawai'] ?? 0 }}</h3>
-                <p class="text-xs text-indigo-400 mt-1">Terdaftar di sistem</p>
-            </div>
-            <div class="h-12 w-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white text-xl shadow-indigo-200 shadow-lg z-10">
-                👮‍♂️
-            </div>
+        {{-- 1. WIDGET ABSENSI (KOMPONEN BARU) --}}
+        <div class="md:col-span-1">
+            <livewire:attendance-widget />
         </div>
 
-        {{-- Kartu 2: Dinas Malam Hari Ini --}}
-        <div class="bg-white rounded-2xl p-6 shadow-lg border border-purple-50 flex items-center justify-between relative overflow-hidden group">
-            <div class="absolute right-0 top-0 h-24 w-24 bg-purple-100 rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
-            <div>
-                <p class="text-gray-500 text-sm font-medium">Dinas Malam (Hari Ini)</p>
-                <h3 class="text-3xl font-extrabold text-purple-900 mt-1">{{ $todayStats['dinas_malam'] ?? 0 }}</h3>
-                <p class="text-xs text-purple-500 mt-1">Personil Siaga</p>
+        {{-- 2. KARTU STATISTIK LAINNYA --}}
+        <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            {{-- Kartu 1: Total Personil --}}
+            <div class="bg-white rounded-2xl p-6 shadow-lg border border-indigo-50 flex items-center justify-between relative overflow-hidden group">
+                <div class="absolute right-0 top-0 h-24 w-24 bg-indigo-100 rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Total Pegawai</p>
+                    <h3 class="text-3xl font-extrabold text-indigo-900 mt-1">{{ $todayStats['total_pegawai'] ?? 0 }}</h3>
+                    <p class="text-xs text-indigo-400 mt-1">Terdaftar di sistem</p>
+                </div>
+                <div class="h-12 w-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white text-xl shadow-indigo-200 shadow-lg z-10">
+                    👮‍♂️
+                </div>
             </div>
-            <div class="h-12 w-12 bg-purple-600 rounded-xl flex items-center justify-center text-white text-xl shadow-purple-200 shadow-lg z-10">
-                🌙
-            </div>
-        </div>
 
-        {{-- Kartu 3: Grafik Donat Distribusi Shift --}}
-        <div class="bg-white rounded-2xl p-4 shadow-lg border border-gray-50 flex items-center gap-4 relative">
-            <div class="w-24 h-24 flex-shrink-0 relative">
-                <canvas id="shiftChart"></canvas>
+            {{-- Kartu 2: Dinas Malam Hari Ini --}}
+            <div class="bg-white rounded-2xl p-6 shadow-lg border border-purple-50 flex items-center justify-between relative overflow-hidden group">
+                <div class="absolute right-0 top-0 h-24 w-24 bg-purple-100 rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Dinas Malam (Hari Ini)</p>
+                    <h3 class="text-3xl font-extrabold text-purple-900 mt-1">{{ $todayStats['dinas_malam'] ?? 0 }}</h3>
+                    <p class="text-xs text-purple-500 mt-1">Personil Siaga</p>
+                </div>
+                <div class="h-12 w-12 bg-purple-600 rounded-xl flex items-center justify-center text-white text-xl shadow-purple-200 shadow-lg z-10">
+                    🌙
+                </div>
             </div>
-            <div>
-                <p class="text-gray-500 text-sm font-medium mb-1">Tren Shift Bulan Ini</p>
-                <div class="space-y-1">
-                    <div class="flex items-center text-xs text-gray-600">
-                        <span class="w-2 h-2 rounded-full bg-yellow-400 mr-2"></span> Pagi
-                    </div>
-                    <div class="flex items-center text-xs text-gray-600">
-                        <span class="w-2 h-2 rounded-full bg-blue-400 mr-2"></span> Siang
-                    </div>
-                    <div class="flex items-center text-xs text-gray-600">
-                        <span class="w-2 h-2 rounded-full bg-slate-800 mr-2"></span> Malam
+
+            {{-- Kartu 3: Grafik Donat Distribusi Shift --}}
+            <div class="bg-white rounded-2xl p-4 shadow-lg border border-gray-50 flex items-center gap-4 relative">
+                <div class="w-24 h-24 flex-shrink-0 relative">
+                    <canvas id="shiftChart"></canvas>
+                </div>
+                <div>
+                    <p class="text-gray-500 text-sm font-medium mb-1">Tren Shift Bulan Ini</p>
+                    <div class="space-y-1">
+                        <div class="flex items-center text-xs text-gray-600">
+                            <span class="w-2 h-2 rounded-full bg-yellow-400 mr-2"></span> Pagi
+                        </div>
+                        <div class="flex items-center text-xs text-gray-600">
+                            <span class="w-2 h-2 rounded-full bg-blue-400 mr-2"></span> Siang
+                        </div>
+                        <div class="flex items-center text-xs text-gray-600">
+                            <span class="w-2 h-2 rounded-full bg-slate-800 mr-2"></span> Malam
+                        </div>
                     </div>
                 </div>
             </div>
@@ -105,9 +117,10 @@
                     <div class="p-4 space-y-3 flex-1 overflow-y-auto max-h-[450px] custom-scrollbar">
                         @if(isset($rosters[$date]))
                             @foreach($rosters[$date] as $roster)
-                                {{-- KARTU PEGAWAI (CLICKABLE) --}}
-                                <div wire:click="editRoster({{ $roster->id }})" 
-                                     class="flex items-center p-3 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-indigo-300 cursor-pointer transition-all duration-200 transform hover:-translate-y-1 active:scale-95 group/item">
+                                {{-- KARTU PEGAWAI --}}
+                                <div @if(auth()->user()->role === 'admin') wire:click="editRoster({{ $roster->id }})" cursor-pointer hover:shadow-md hover:border-indigo-300 transform hover:-translate-y-1 active:scale-95 @endif 
+                                     class="flex items-center p-3 bg-white rounded-xl border border-gray-100 shadow-sm transition-all duration-200 group/item 
+                                     {{ auth()->user()->role === 'admin' ? 'cursor-pointer' : 'cursor-default' }}">
                                     
                                     <div class="h-10 w-10 rounded-full bg-gradient-to-tr from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold text-sm shadow-md shrink-0">
                                         {{ substr($roster->user->name, 0, 2) }}
@@ -119,8 +132,8 @@
                                         </p>
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium mt-1
                                             {{ $roster->shift->is_overnight ? 'bg-slate-800 text-yellow-400' : 
-                                               ($roster->shift->name == 'Regu Pagi' ? 'bg-yellow-100 text-yellow-800' : 
-                                               ($roster->shift->name == 'Regu Siang' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800')) }}">
+                                              ($roster->shift->name == 'Regu Pagi' ? 'bg-yellow-100 text-yellow-800' : 
+                                              ($roster->shift->name == 'Regu Siang' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800')) }}">
                                             {{ $roster->shift->name }}
                                         </span>
                                     </div>
