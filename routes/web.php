@@ -7,6 +7,7 @@ use App\Http\Controllers\RosterReportController;
 use App\Livewire\Auth\Login; // Import Login
 use App\Livewire\UserProfile;
 use App\Livewire\LeaveManager;
+use App\Livewire\Logbook;
 
 Route::get('/', function () {
     return view('welcome');
@@ -35,3 +36,4 @@ Route::middleware('auth')->group(function () {
     Route::get('/cuti', LeaveManager::class);
 });
 Route::get('/profil', UserProfile::class);
+Route::get('/laporan', \App\Livewire\Logbook::class);
