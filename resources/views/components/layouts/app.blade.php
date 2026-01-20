@@ -139,29 +139,60 @@
     {{-- Script Global SweetAlert --}}
     <script>
         document.addEventListener('livewire:init', () => {
-            Livewire.on('roster-updated', (event) => {
-                let message = event.message || (typeof event === 'string' ? event : 'Data berhasil disimpan!');
+            // Listener untuk notifikasi toast (sukses, error, info)
+            Livewire.on('flash-message', (event) => {
+                const { type = 'success', title = 'Berhasil!', text } = event;
+
                 Swal.fire({
-                    icon: message.includes('DITOLAK') ? 'error' : 'success', // Icon otomatis merah jika pesan error
-                    title: message.includes('DITOLAK') ? 'Gagal!' : 'Berhasil!',
-                    text: message,
+                    icon: type,
+                    title: title,
+                    text: text,
                     timer: 3000,
+                    timerProgressBar: true,
                     showConfirmButton: false,
                     toast: true,
                     position: 'top-end',
                     showClass: {
-                        popup: 'animate__animated animate__flipInX'
+                        popup: 'animate__animated animate__fadeInDown'
                     },
                     hideClass: {
-                        popup: 'animate__animated animate__flipOutX'
+                        popup: 'animate__animated animate__fadeOutUp'
                     },
                     background: '#fff',
                     customClass: {
-                        popup: 'shadow-xl rounded-xl border border-gray-100'
+                        popup: 'shadow-xl rounded-xl border border-gray-100 p-4'
+                    }
+                });
+            });
+
+            // Listener untuk dialog konfirmasi (misal: hapus data)
+            Livewire.on('confirm-dialog', (event) => {
+                const { title = 'Anda Yakin?', text = 'Tindakan ini tidak dapat dibatalkan!', confirm_event, confirm_params } = event;
+                
+                Swal.fire({
+                    title: title,
+                    text: text,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#4f46e5',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya, Lanjutkan!',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    showClass: {
+                        popup: 'animate__animated animate__zoomIn'
+                    },
+                    hideClass: {
+                        popup: 'animate__animated animate__zoomOut'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Livewire.dispatch(confirm_event, confirm_params);
                     }
                 });
             });
         });
     </script>
+    @stack('scripts')
 </body>
 </html>

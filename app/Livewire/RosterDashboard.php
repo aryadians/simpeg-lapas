@@ -69,8 +69,10 @@ class RosterDashboard extends Component
             ->whereYear('date', $year)
             ->delete();
 
-        // 2. Ambil pegawai (Acak urutan agar adil)
-        $users = User::inRandomOrder()->get();
+        // 2. Ambil pegawai. Admin (user saat ini) dipisahkan agar bisa di-override.
+        $adminUser = Auth::user();
+        $otherUsers = User::where('id', '!=', $adminUser->id)->inRandomOrder()->get();
+        $users = $otherUsers->prepend($adminUser);
 
         // 3. Pola Shift Dasar: Pagi, Siang, Malam, Libur
         $basePattern = [1, 2, 3, null];
@@ -83,22 +85,23 @@ class RosterDashboard extends Component
             $patternIndex = rand(0, count($basePattern) - 1);
 
             for ($day = 1; $day <= $daysInMonth; $day++) {
-                $currentDate = Carbon::createFromDate($year, $month, $day)->format('Y-m-d');
+                $currentDate = Carbon::createFromDate($year, $month, $day);
+                $currentDateString = $currentDate->format('Y-m-d');
                 $shiftId = null;
 
                 // --- LOGIKA KHUSUS TESTING ---
                 // Jika User ini adalah SAYA (Admin) DAN Tanggal adalah HARI INI
                 // Maka PAKSA masuk "Regu Pagi" (ID 1) agar tombol absen muncul.
-                if ($user->id === Auth::id() && $currentDate === Carbon::today()->format('Y-m-d')) {
-                    $shiftId = 1;
+                if ($user->id === $adminUser->id && $currentDate->isToday()) {
+                    $shiftId = 1; // ID 1 adalah Regu Pagi
                 } else {
                     // --- LOGIKA NORMAL ---
 
                     // Cek Cuti
                     $isOnLeave = LeaveRequest::where('user_id', $user->id)
                         ->where('status', 'approved')
-                        ->where('start_date', '<=', $currentDate)
-                        ->where('end_date', '>=', $currentDate)
+                        ->where('start_date', '<=', $currentDateString)
+                        ->where('end_date', '>=', $currentDateString)
                         ->exists();
 
                     if ($isOnLeave) {
@@ -115,7 +118,7 @@ class RosterDashboard extends Component
                     $rostersToInsert[] = [
                         'user_id' => $user->id,
                         'shift_id' => $shiftId,
-                        'date' => $currentDate,
+                        'date' => $currentDateString,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];
@@ -133,7 +136,7 @@ class RosterDashboard extends Component
 
         // Refresh Tampilan
         $this->generateDateRange();
-        $this->dispatch('roster-updated', message: 'Jadwal baru berhasil diacak & dibuat! (Admin dipaksa masuk hari ini)');
+        $this->dispatch('roster-updated', message: 'Jadwal baru berhasil diacak & dibuat!');
     }
 
     // ==========================================
@@ -202,10 +205,10 @@ class RosterDashboard extends Component
         // 3. Statistik Kartu (Realtime Hari Ini)
         $todayStats = [
             'total_pegawai' => User::count(),
-            'dinas_malam' => Roster::where('date', Carbon::today())
+            'dinas_malam' => Roster::whereDate('date', Carbon::today())
                 ->whereHas('shift', fn($q) => $q->where('is_overnight', true))
                 ->count(),
-            'off_duty' => User::count() - Roster::where('date', Carbon::today())->count()
+            'off_duty' => User::count() - Roster::whereDate('date', Carbon::today())->count()
         ];
 
         return view('livewire.roster-dashboard', [
