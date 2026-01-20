@@ -7,6 +7,7 @@ use App\Models\DailyLog;
 use App\Models\Shift;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Livewire\Attributes\On;
 
 class Logbook extends Component
 {
@@ -15,7 +16,6 @@ class Logbook extends Component
 
     public function mount()
     {
-        // Otomatis deteksi shift berdasarkan jam sekarang (Sederhana)
         $hour = Carbon::now()->hour;
         if ($hour >= 7 && $hour < 13) $this->shift_name = 'Regu Pagi';
         elseif ($hour >= 13 && $hour < 19) $this->shift_name = 'Regu Siang';
@@ -25,8 +25,8 @@ class Logbook extends Component
     public function submitLog()
     {
         $this->validate([
-            'wbp_count' => 'required|numeric',
-            'description' => 'required|min:10',
+            'wbp_count' => 'required|numeric|min:0',
+            'description' => 'required|string|min:10',
         ]);
 
         DailyLog::create([
@@ -39,18 +39,31 @@ class Logbook extends Component
         ]);
 
         $this->reset(['wbp_count', 'description', 'is_urgent']);
-        $this->dispatch('roster-updated', message: 'Laporan Aplusan berhasil dikirim!');
+        $this->dispatch('flash-message', text: 'Laporan aplusan berhasil dikirim!');
     }
 
     public function deleteLog($id)
     {
+        // Pengecekan keamanan: hanya admin atau pemilik log yang bisa hapus
+        $log = DailyLog::findOrFail($id);
+        if (auth()->user()->role !== 'admin' && auth()->id() !== $log->user_id) {
+            $this->dispatch('flash-message', type: 'error', title: 'Akses Ditolak!', text: 'Anda tidak memiliki izin untuk menghapus laporan ini.');
+            return;
+        }
+
+        $this->dispatch('confirm-dialog', title: 'Hapus Laporan?', text: 'Anda yakin ingin menghapus laporan ini secara permanen?', confirm_event: 'deleteLogConfirmed', confirm_params: $id);
+    }
+
+    #[On('deleteLogConfirmed')]
+    public function deleteLogConfirmed($id)
+    {
         DailyLog::find($id)->delete();
+        $this->dispatch('flash-message', type: 'info', text: 'Laporan telah dihapus.');
     }
 
     public function render()
     {
-        // Admin lihat semua, Staff lihat 5 hari terakhir
-        $logs = DailyLog::with('user')->latest()->take(20)->get();
+        $logs = DailyLog::with('user')->latest()->take(30)->get();
 
         return view('livewire.logbook', [
             'logs' => $logs

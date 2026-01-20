@@ -5,25 +5,36 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\LeaveRequest;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
 
 class LeaveManager extends Component
 {
     public $start_date, $end_date, $reason;
 
-    // Untuk Admin Approval
     public function approve($id)
     {
+        $this->dispatch('confirm-dialog', title: 'Setujui Izin?', text: 'Anda yakin ingin menyetujui permohonan izin ini?', confirm_event: 'approveConfirmed', confirm_params: $id);
+    }
+
+    #[On('approveConfirmed')]
+    public function approveConfirmed($id)
+    {
         LeaveRequest::find($id)->update(['status' => 'approved']);
-        $this->dispatch('roster-updated', message: 'Izin disetujui!');
+        $this->dispatch('flash-message', text: 'Permohonan izin telah disetujui!');
     }
 
     public function reject($id)
     {
-        LeaveRequest::find($id)->update(['status' => 'rejected']);
-        $this->dispatch('roster-updated', message: 'Izin ditolak.');
+        $this->dispatch('confirm-dialog', title: 'Tolak Izin?', text: 'Anda yakin ingin menolak permohonan izin ini?', confirm_event: 'rejectConfirmed', confirm_params: $id);
     }
 
-    // Untuk Submit Request
+    #[On('rejectConfirmed')]
+    public function rejectConfirmed($id)
+    {
+        LeaveRequest::find($id)->update(['status' => 'rejected']);
+        $this->dispatch('flash-message', type: 'info', title: 'Izin Ditolak', text: 'Permohonan izin telah ditolak.');
+    }
+
     public function submitRequest()
     {
         $this->validate([
@@ -41,23 +52,18 @@ class LeaveManager extends Component
         ]);
 
         $this->reset(['start_date', 'end_date', 'reason']);
-        $this->dispatch('roster-updated', message: 'Pengajuan cuti berhasil dikirim!');
+        $this->dispatch('flash-message', text: 'Pengajuan cuti Anda telah berhasil dikirim!');
     }
 
     public function render()
     {
         $user = Auth::user();
-
-        // Logika Data: Kalau Admin (Jabatan Kalapas/KPLP) bisa lihat semua yg Pending
-        // Kalau kroco, cuma lihat punya sendiri.
-        // (Sederhananya kita anggap email admin@lapas.com adalah Admin)
-
         $isAdmin = $user->role === 'admin';
         $myRequests = LeaveRequest::where('user_id', $user->id)->latest()->get();
 
         $pendingRequests = [];
         if ($isAdmin) {
-            $pendingRequests = LeaveRequest::where('status', 'pending')->with('user')->get();
+            $pendingRequests = LeaveRequest::where('status', 'pending')->with('user')->latest()->get();
         }
 
         return view('livewire.leave-manager', [

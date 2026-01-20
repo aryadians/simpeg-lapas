@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use Livewire\Attributes\On;
 use Livewire\Component;
 use App\Models\Roster;
 use App\Models\Shift;
@@ -20,6 +21,12 @@ class RosterDashboard extends Component
     public $selectedRosterId = null;
     public $selectedRosterName = '';
     public $selectedShiftId = null;
+
+    #[On('attendance-changed')]
+    public function refreshDashboard()
+    {
+        // This empty method, when triggered, will cause the component to re-render.
+    }
 
     public function mount()
     {
@@ -51,6 +58,7 @@ class RosterDashboard extends Component
     // ==========================================
     // FITUR 1: AUTO GENERATE JADWAL (SECURE & SMART)
     // ==========================================
+    #[On('generate-schedule-confirmed')]
     public function generateSchedule()
     {
         // KEAMANAN: Cek Role
@@ -136,6 +144,7 @@ class RosterDashboard extends Component
 
         // Refresh Tampilan
         $this->generateDateRange();
+        $this->dispatch('flash-message', type: 'success', title: 'Berhasil!', text: 'Jadwal baru berhasil diacak & dibuat!');
         $this->dispatch('roster-updated', message: 'Jadwal baru berhasil diacak & dibuat!');
     }
 
@@ -175,6 +184,7 @@ class RosterDashboard extends Component
         }
 
         $this->isModalOpen = false;
+        $this->dispatch('flash-message', type: 'success', title: 'Berhasil!', text: 'Perubahan jadwal disimpan.');
         $this->dispatch('roster-updated', message: 'Perubahan jadwal disimpan.');
     }
 
@@ -211,11 +221,39 @@ class RosterDashboard extends Component
             'off_duty' => User::count() - Roster::whereDate('date', Carbon::today())->count()
         ];
 
+        // 4. Data Untuk Attendance Widget
+        $user = Auth::user();
+        $now = Carbon::now();
+        $today = Carbon::today();
+        $todaysRosterForUser = null;
+
+        $roster = Roster::where('user_id', $user->id)
+            ->whereDate('date', $today)
+            ->with('shift')
+            ->first();
+
+        if (!$roster && $now->hour < 8) {
+            $yesterday = Carbon::yesterday();
+            $rosterYesterday = Roster::where('user_id', $user->id)
+                ->whereDate('date', $yesterday)
+                ->whereHas('shift', function ($q) {
+                    $q->where('is_overnight', true);
+                })
+                ->with('shift')
+                ->first();
+
+            if ($rosterYesterday) {
+                $roster = $rosterYesterday;
+            }
+        }
+        $todaysRosterForUser = $roster;
+
         return view('livewire.roster-dashboard', [
             'rosters' => $rosters,
             'shifts' => Shift::all(),
             'shiftStats' => $shiftStats,
-            'todayStats' => $todayStats
+            'todayStats' => $todayStats,
+            'todaysRosterForUser' => $todaysRosterForUser,
         ])->layout('components.layouts.app');
     }
 }

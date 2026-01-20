@@ -35,7 +35,7 @@ class UserProfile extends Component
             'email' => $this->email,
         ]);
 
-        $this->dispatch('roster-updated', message: 'Profil berhasil diperbarui!');
+        $this->dispatch('flash-message', text: 'Profil berhasil diperbarui!');
     }
 
     public function updatePassword()
@@ -50,7 +50,7 @@ class UserProfile extends Component
         ]);
 
         $this->reset(['current_password', 'password', 'password_confirmation']);
-        $this->dispatch('roster-updated', message: 'Password berhasil diganti!');
+        $this->dispatch('flash-message', text: 'Password berhasil diganti!');
     }
 
     public function render()

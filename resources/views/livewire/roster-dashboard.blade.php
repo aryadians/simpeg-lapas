@@ -22,8 +22,7 @@
                 </a>
                 
                 @if(auth()->user()->role === 'admin')
-                <button wire:click="generateSchedule" 
-                        wire:confirm="Yakin ingin membuat jadwal otomatis untuk bulan ini? Jadwal lama di bulan ini akan dihapus/ditimpa."
+                <button onclick="Livewire.dispatch('confirm-dialog', { title: 'Anda Yakin?', text: 'Jadwal lama di bulan ini akan dihapus/ditimpa.', confirm_event: 'generate-schedule-confirmed', confirm_params: {} })"
                         title="Generate Jadwal Otomatis"
                         class="p-3 h-12 w-auto rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white border-2 border-emerald-300 shadow-lg shadow-emerald-500/30 transition-all duration-300 transform hover:scale-105 active:scale-95 flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
@@ -42,7 +41,7 @@
         {{-- KOLOM KIRI: WIDGET ABSEN & CHART --}}
         <div class="lg:col-span-1 space-y-6">
             <div class="animate-pop-in">
-                <livewire:attendance-widget />
+                <livewire:attendance-widget :todayRoster="$todaysRosterForUser" />
             </div>
             <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 animate-pop-in" style="animation-delay: 100ms;">
                 <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Komposisi Shift</h3>

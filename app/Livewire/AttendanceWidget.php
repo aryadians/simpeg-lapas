@@ -7,65 +7,28 @@ use App\Models\Attendance;
 use App\Models\Roster;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Attributes\On;
 
 class AttendanceWidget extends Component
 {
     public $todayRoster;
     public $attendance;
     public $currentTime;
-    public $currentDateDisplay; // Untuk Debugging
+    public $currentDateDisplay;
 
-    public function mount()
+    public function mount($todayRoster = null)
     {
-        $this->refreshData();
+        $this->todayRoster = $todayRoster;
+        $this->refreshAttendanceData();
+        $this->currentTime = Carbon::now()->format('H:i:s');
+        $this->currentDateDisplay = Carbon::now()->translatedFormat('l, d F Y');
     }
 
-    #[On('roster-updated')]
-    public function refreshData()
+    public function refreshAttendanceData()
     {
-        $user = Auth::user();
-
-        // 1. Waktu Sekarang (Sesuai Timezone App)
-        $now = Carbon::now();
-        $today = Carbon::today();
-
-        $this->currentTime = $now->format('H:i:s');
-        $this->currentDateDisplay = $now->translatedFormat('l, d F Y');
-
-        // 2. CEK JADWAL HARI INI
-        $roster = Roster::where('user_id', $user->id)
-            ->whereDate('date', $today)
-            ->with('shift')
-            ->first();
-
-        // 3. LOGIKA SHIFT MALAM (CROSS DAY)
-        // Jika hari ini kosong, tapi jam sekarang dini hari (00:00 - 08:00),
-        // Cek apakah kemarin dia Shift Malam?
-        if (!$roster && $now->hour < 8) {
-            $yesterday = Carbon::yesterday();
-            $rosterYesterday = Roster::where('user_id', $user->id)
-                ->whereDate('date', $yesterday)
-                ->whereHas('shift', function ($q) {
-                    $q->where('is_overnight', true); // Hanya cari yang shift malam
-                })
-                ->with('shift')
-                ->first();
-
-            if ($rosterYesterday) {
-                $roster = $rosterYesterday;
-                // Override tanggal "hari ini" jadi "kemarin" untuk keperluan query absen
-                $today = $yesterday;
-            }
-        }
-
-        $this->todayRoster = $roster;
-
-        // 4. Cek Data Absensi (Berdasarkan tanggal roster yang ditemukan)
-        $this->attendance = null; // Reset dulu
+        $this->attendance = null;
         if ($this->todayRoster) {
-            $this->attendance = Attendance::where('user_id', $user->id)
-                ->where('date', $this->todayRoster->date) // Gunakan tanggal roster
+            $this->attendance = Attendance::where('user_id', Auth::id())
+                ->where('date', $this->todayRoster->date)
                 ->first();
         }
     }
@@ -87,30 +50,24 @@ class AttendanceWidget extends Component
             $shiftEnd->addDay();
         }
 
-        // Cek #1: Jangan biarkan absen masuk jika jam dinas sudah selesai.
         if ($now->isAfter($shiftEnd)) {
-            $this->dispatch('roster-updated', message: 'Gagal: Jam dinas untuk shift ini sudah berakhir.');
+            $this->dispatch('flash-message', type: 'error', title: 'Gagal', text: 'Jam dinas untuk shift ini sudah berakhir.');
             return;
         }
 
-        // Cek #2: Jangan biarkan absen terlalu awal (misal > 1 jam sebelum mulai).
         if ($now->isBefore($shiftStart->copy()->subHour())) {
-            $this->dispatch('roster-updated', message: 'Gagal: Absen masuk hanya bisa dilakukan maksimal 1 jam sebelum shift dimulai.');
+            $this->dispatch('flash-message', type: 'error', title: 'Gagal', text: 'Absen masuk hanya bisa dilakukan maksimal 1 jam sebelum shift dimulai.');
             return;
         }
         
-        // Penentuan Status: Hadir atau Terlambat
-        $lateThreshold = $shiftStart->copy()->addMinutes(15); // Toleransi 15 menit
-        $status = 'hadir'; // Default
+        $lateThreshold = $shiftStart->copy()->addMinutes(15);
+        $status = 'hadir';
 
         if ($shift->is_overnight) {
-            // Untuk shift malam, status "terlambat" hanya berlaku jika user absen di hari yang sama dengan hari mulainya shift.
             if ($now->isSameDay($shiftStart) && $now->isAfter($lateThreshold)) {
                 $status = 'terlambat';
             }
-            // Jika user absen di hari berikutnya (setelah tengah malam), itu dianggap 'hadir' (bukan terlambat).
         } else {
-            // Untuk shift biasa, jika melewati ambang batas, maka terlambat.
             if ($now->isAfter($lateThreshold)) {
                 $status = 'terlambat';
             }
@@ -123,10 +80,10 @@ class AttendanceWidget extends Component
             'status' => $status,
         ]);
 
-        // Beri pesan sukses yang sesuai
         $message = 'Berhasil Absen Masuk. Status: ' . ($status == 'hadir' ? 'Tepat Waktu' : 'Terlambat');
-        $this->dispatch('roster-updated', message: $message);
-        $this->refreshData();
+        $this->dispatch('flash-message', type: 'success', title: 'Berhasil', text: $message);
+        $this->refreshAttendanceData();
+        $this->dispatch('attendance-changed');
     }
 
     public function clockOut()
@@ -136,8 +93,9 @@ class AttendanceWidget extends Component
                 'clock_out' => Carbon::now()
             ]);
 
-            $this->dispatch('roster-updated', message: 'Berhasil Absen Pulang!');
-            $this->refreshData();
+            $this->dispatch('flash-message', type: 'success', title: 'Berhasil', text: 'Berhasil Absen Pulang!');
+            $this->refreshAttendanceData();
+            $this->dispatch('attendance-changed');
         }
     }
 

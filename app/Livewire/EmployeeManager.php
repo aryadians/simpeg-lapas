@@ -3,14 +3,15 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use Livewire\WithPagination; // 1. Import Trait Pagination
+use Livewire\WithPagination;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
 
 class EmployeeManager extends Component
 {
-    use WithPagination; // 2. Gunakan Trait ini
+    use WithPagination;
 
     public $search = '';
     public $isModalOpen = false;
@@ -19,7 +20,8 @@ class EmployeeManager extends Component
     // Properti Form
     public $name, $email, $nip, $jabatan, $grade;
 
-    // Reset ke halaman 1 jika user mengetik di search bar
+    protected $listeners = ['deleteConfirmed' => 'deleteConfirmed', 'resetPasswordConfirmed' => 'resetPasswordConfirmed'];
+
     public function updatingSearch()
     {
         $this->resetPage();
@@ -27,21 +29,16 @@ class EmployeeManager extends Component
 
     public function render()
     {
-        // 3. Query Data (Ganti get() menjadi paginate())
         $employees = User::query()
             ->where('name', 'like', '%' . $this->search . '%')
             ->orWhere('nip', 'like', '%' . $this->search . '%')
             ->orderBy('name', 'asc')
-            ->paginate(10); // <--- PERBAIKAN UTAMA: Gunakan paginate, bukan get
+            ->paginate(10);
 
         return view('livewire.employee-manager', [
             'employees' => $employees
         ])->layout('components.layouts.app');
     }
-
-    // ==========================================
-    // LOGIKA CRUD (TAMBAH, EDIT, HAPUS)
-    // ==========================================
 
     public function create()
     {
@@ -71,13 +68,11 @@ class EmployeeManager extends Component
 
     public function store()
     {
-        // KEAMANAN: Cek Role Admin
         if (Auth::user()->role !== 'admin') {
-            $this->dispatch('roster-updated', message: 'AKSES DITOLAK: Anda bukan Admin!');
+            $this->dispatch('flash-message', type: 'error', title: 'Akses Ditolak!', text: 'Anda tidak memiliki izin untuk melakukan tindakan ini.');
             return;
         }
 
-        // Validasi
         $this->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $this->employeeId,
@@ -86,26 +81,23 @@ class EmployeeManager extends Component
             'grade' => 'required|integer',
         ]);
 
-        // Logic Simpan / Update
         User::updateOrCreate(['id' => $this->employeeId], [
             'name' => $this->name,
             'email' => $this->email,
             'nip' => $this->nip,
             'jabatan' => $this->jabatan,
             'grade' => $this->grade,
-            // Jika user baru, kasih password default 'password'. Jika edit, jangan ubah password.
             'password' => $this->employeeId ? User::find($this->employeeId)->password : Hash::make('password'),
-            'role' => 'staff' // Default role
+            'role' => 'staff'
         ]);
 
         $this->closeModal();
+        $this->dispatch('flash-message', text: $this->employeeId ? 'Data Pegawai berhasil diperbarui!' : 'Pegawai baru berhasil ditambahkan!');
         $this->resetInputFields();
-        $this->dispatch('roster-updated', message: $this->employeeId ? 'Data Pegawai Diperbarui!' : 'Pegawai Baru Ditambahkan!');
     }
 
     public function edit($id)
     {
-        // KEAMANAN
         if (Auth::user()->role !== 'admin') return;
 
         $employee = User::findOrFail($id);
@@ -121,25 +113,37 @@ class EmployeeManager extends Component
 
     public function delete($id)
     {
-        // KEAMANAN
         if (Auth::user()->role !== 'admin') {
-            $this->dispatch('roster-updated', message: 'AKSES DITOLAK: Anda bukan Admin!');
+             $this->dispatch('flash-message', type: 'error', title: 'Akses Ditolak!', text: 'Anda tidak memiliki izin untuk melakukan tindakan ini.');
             return;
         }
-
-        User::find($id)->delete();
-        $this->dispatch('roster-updated', message: 'Data Pegawai Dihapus.');
+        $this->dispatch('confirm-dialog', title: 'Hapus Pegawai?', text: 'Anda yakin ingin menghapus data pegawai ini?', confirm_event: 'deleteConfirmed', confirm_params: $id);
     }
+
+    #[On('deleteConfirmed')]
+    public function deleteConfirmed($id)
+    {
+        User::find($id)->delete();
+        $this->dispatch('flash-message', text: 'Data Pegawai telah dihapus.');
+    }
+
     public function resetPassword($id)
     {
-        // KEAMANAN
-        if (auth()->user()->role !== 'admin') return;
+        if (auth()->user()->role !== 'admin') {
+            $this->dispatch('flash-message', type: 'error', title: 'Akses Ditolak!', text: 'Anda tidak memiliki izin untuk melakukan tindakan ini.');
+            return;
+        }
+        $user = User::find($id);
+        $this->dispatch('confirm-dialog', title: 'Reset Password?', text: 'Reset password untuk ' . $user->name . ' menjadi "password"?', confirm_event: 'resetPasswordConfirmed', confirm_params: $id);
+    }
 
+    #[On('resetPasswordConfirmed')]
+    public function resetPasswordConfirmed($id)
+    {
         $user = User::find($id);
         $user->update([
-            'password' => Hash::make('password') // Balikin ke default
+            'password' => Hash::make('password')
         ]);
-
-        $this->dispatch('roster-updated', message: 'Password ' . $user->name . ' direset menjadi "password"');
+        $this->dispatch('flash-message', text: 'Password untuk ' . $user->name . ' telah direset.');
     }
 }
