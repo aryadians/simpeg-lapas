@@ -42,6 +42,7 @@ Route::middleware('auth')->group(function () {
 
     // Cetak PDF
     Route::get('/cetak-laporan', [RosterReportController::class, 'print'])->name('cetak');
+    Route::get('/rekap-absensi', \App\Livewire\AttendanceReport::class)->name('rekap');
 
     // Logout
     Route::get('/logout', function () {
