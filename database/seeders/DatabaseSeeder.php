@@ -17,11 +17,12 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Regu Malam', 'start_time' => '19:00:00', 'end_time' => '07:00:00', 'is_overnight' => true],
         ]);
 
-        // 2. Buat 1 Akun Admin (Untuk Login Kamu)
+        // 2. Buat 1 Akun Admin
         User::factory()->create([
             'name' => 'Administrator',
             'email' => 'admin@lapas.com',
-            'password' => bcrypt('password'), // Password gampang
+            'role' => 'admin', // <--- PENTING
+            'password' => bcrypt('password'),
             'jabatan' => 'Kalapas',
             'nip' => '111122223333',
             'grade' => 15

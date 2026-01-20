@@ -52,8 +52,7 @@ class LeaveManager extends Component
         // Kalau kroco, cuma lihat punya sendiri.
         // (Sederhananya kita anggap email admin@lapas.com adalah Admin)
 
-        $isAdmin = $user->email === 'admin@lapas.com';
-
+        $isAdmin = $user->role === 'admin';
         $myRequests = LeaveRequest::where('user_id', $user->id)->latest()->get();
 
         $pendingRequests = [];
