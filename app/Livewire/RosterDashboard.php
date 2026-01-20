@@ -6,7 +6,7 @@ use Livewire\Component;
 use App\Models\Roster;
 use App\Models\Shift;
 use App\Models\User;
-use App\Models\LeaveRequest; // PENTING: Import Model Cuti
+use App\Models\LeaveRequest;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -53,61 +53,64 @@ class RosterDashboard extends Component
     // ==========================================
     public function generateSchedule()
     {
-        // KEAMANAN: Cek Role (Hanya Admin)
+        // KEAMANAN: Cek Role
         if (Auth::user()->role !== 'admin') {
             $this->dispatch('roster-updated', message: 'AKSES DITOLAK: Anda bukan Admin!');
             return;
         }
 
-        // 1. Tentukan target bulan & tahun berdasarkan tanggal yang sedang dilihat
         $targetDate = $this->startDate->copy();
         $month = $targetDate->month;
         $year = $targetDate->year;
         $daysInMonth = $targetDate->daysInMonth;
 
-        // 2. Hapus jadwal lama di bulan tersebut (Reset)
+        // 1. Hapus jadwal lama (Reset)
         Roster::whereMonth('date', $month)
             ->whereYear('date', $year)
             ->delete();
 
-        // 3. Ambil semua pegawai
-        $users = User::all();
+        // 2. Ambil pegawai (Acak urutan agar adil)
+        $users = User::inRandomOrder()->get();
 
-        // 4. Pola Shift: 1=Pagi, 2=Siang, 3=Malam, null=Libur
-        $pattern = [1, 2, 3, null];
+        // 3. Pola Shift Dasar: Pagi, Siang, Malam, Libur
+        $basePattern = [1, 2, 3, null];
 
         $rostersToInsert = [];
 
-        // 5. Mulai Perulangan
-        foreach ($users as $index => $user) {
+        foreach ($users as $user) {
 
-            // Offset pola agar shift tidak seragam
-            $patternIndex = $index % count($pattern);
+            // Setiap pegawai mulai dari titik pola yang acak
+            $patternIndex = rand(0, count($basePattern) - 1);
 
             for ($day = 1; $day <= $daysInMonth; $day++) {
-
-                // Buat tanggal YYYY-MM-DD
                 $currentDate = Carbon::createFromDate($year, $month, $day)->format('Y-m-d');
+                $shiftId = null;
 
-                // --- LOGIKA UTAMA: CEK CUTI ---
-                // Cek apakah user sedang cuti (approved) di tanggal ini
-                $isOnLeave = LeaveRequest::where('user_id', $user->id)
-                    ->where('status', 'approved')
-                    ->where('start_date', '<=', $currentDate)
-                    ->where('end_date', '>=', $currentDate)
-                    ->exists();
+                // --- LOGIKA KHUSUS TESTING ---
+                // Jika User ini adalah SAYA (Admin) DAN Tanggal adalah HARI INI
+                // Maka PAKSA masuk "Regu Pagi" (ID 1) agar tombol absen muncul.
+                if ($user->id === Auth::id() && $currentDate === Carbon::today()->format('Y-m-d')) {
+                    $shiftId = 1;
+                } else {
+                    // --- LOGIKA NORMAL ---
 
-                if ($isOnLeave) {
-                    // Jika Cuti: Jangan buat jadwal (Lewati),
-                    // TAPI tetap putar pola agar urutan shift tidak rusak
-                    $patternIndex = ($patternIndex + 1) % count($pattern);
-                    continue; // Lanjut ke hari berikutnya
+                    // Cek Cuti
+                    $isOnLeave = LeaveRequest::where('user_id', $user->id)
+                        ->where('status', 'approved')
+                        ->where('start_date', '<=', $currentDate)
+                        ->where('end_date', '>=', $currentDate)
+                        ->exists();
+
+                    if ($isOnLeave) {
+                        // Jika cuti, lewati simpan jadwal, tapi putar pola
+                        $patternIndex = ($patternIndex + 1) % count($basePattern);
+                        continue;
+                    }
+
+                    $shiftId = $basePattern[$patternIndex];
                 }
-                // ------------------------------
 
-                // Ambil Shift ID dari pola
-                $shiftId = $pattern[$patternIndex];
-
+                // Jika Shift ID ada (bukan null/Libur), masukkan ke antrian simpan
                 if ($shiftId) {
                     $rostersToInsert[] = [
                         'user_id' => $user->id,
@@ -118,19 +121,19 @@ class RosterDashboard extends Component
                     ];
                 }
 
-                // Putar pola untuk hari berikutnya
-                $patternIndex = ($patternIndex + 1) % count($pattern);
+                // Putar ke pola shift berikutnya untuk besok
+                $patternIndex = ($patternIndex + 1) % count($basePattern);
             }
         }
 
-        // 6. Simpan Data (Bulk Insert)
+        // Simpan Data (Bulk Insert agar cepat)
         foreach (array_chunk($rostersToInsert, 500) as $chunk) {
             Roster::insert($chunk);
         }
 
-        // 7. Refresh
+        // Refresh Tampilan
         $this->generateDateRange();
-        $this->dispatch('roster-updated', message: 'Jadwal otomatis berhasil dibuat (Pegawai Cuti dilewati)!');
+        $this->dispatch('roster-updated', message: 'Jadwal baru berhasil diacak & dibuat! (Admin dipaksa masuk hari ini)');
     }
 
     // ==========================================

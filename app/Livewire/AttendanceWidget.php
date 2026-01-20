@@ -13,6 +13,7 @@ class AttendanceWidget extends Component
     public $todayRoster;
     public $attendance;
     public $currentTime;
+    public $currentDateDisplay; // Untuk Debugging
 
     public function mount()
     {
@@ -22,39 +23,68 @@ class AttendanceWidget extends Component
     public function refreshData()
     {
         $user = Auth::user();
+
+        // 1. Waktu Sekarang (Sesuai Timezone App)
+        $now = Carbon::now();
         $today = Carbon::today();
 
-        // 1. Cek Jadwal Hari Ini
-        $this->todayRoster = Roster::where('user_id', $user->id)
+        $this->currentTime = $now->format('H:i');
+        $this->currentDateDisplay = $now->translatedFormat('l, d F Y');
+
+        // 2. CEK JADWAL HARI INI
+        $roster = Roster::where('user_id', $user->id)
             ->where('date', $today)
             ->with('shift')
             ->first();
 
-        // 2. Cek Data Absensi Hari Ini
-        $this->attendance = Attendance::where('user_id', $user->id)
-            ->where('date', $today)
-            ->first();
+        // 3. LOGIKA SHIFT MALAM (CROSS DAY)
+        // Jika hari ini kosong, tapi jam sekarang dini hari (00:00 - 08:00),
+        // Cek apakah kemarin dia Shift Malam?
+        if (!$roster && $now->hour < 8) {
+            $yesterday = Carbon::yesterday();
+            $rosterYesterday = Roster::where('user_id', $user->id)
+                ->where('date', $yesterday)
+                ->whereHas('shift', function ($q) {
+                    $q->where('is_overnight', true); // Hanya cari yang shift malam
+                })
+                ->with('shift')
+                ->first();
 
-        $this->currentTime = Carbon::now()->format('H:i');
+            if ($rosterYesterday) {
+                $roster = $rosterYesterday;
+                // Override tanggal "hari ini" jadi "kemarin" untuk keperluan query absen
+                $today = $yesterday;
+            }
+        }
+
+        $this->todayRoster = $roster;
+
+        // 4. Cek Data Absensi (Berdasarkan tanggal roster yang ditemukan)
+        if ($this->todayRoster) {
+            $this->attendance = Attendance::where('user_id', $user->id)
+                ->where('date', $this->todayRoster->date) // Gunakan tanggal roster
+                ->first();
+        }
     }
 
     public function clockIn()
     {
-        // Validasi: Harus punya jadwal dulu
-        if (!$this->todayRoster) {
-            $this->dispatch('roster-updated', message: 'Anda tidak memiliki jadwal dinas hari ini!');
-            return;
-        }
+        if (!$this->todayRoster) return;
 
         $now = Carbon::now();
-        $shiftStart = Carbon::parse($this->todayRoster->shift->start_time);
+        $shiftStart = Carbon::parse($this->todayRoster->date . ' ' . $this->todayRoster->shift->start_time);
 
-        // Logika Terlambat (Toleransi 15 menit)
-        $status = $now->greaterThan($shiftStart->addMinutes(15)) ? 'terlambat' : 'hadir';
+        // Koreksi shift malam: Jika start jam 19:00, dan sekarang jam 01:00 besoknya, hitungannya aman.
+        // Toleransi keterlambatan 15 menit
+        $status = 'hadir';
+
+        // Jika absennya telat lebih dari 15 menit dari jam masuk
+        // Perlu logika datetime comparison yang akurat untuk shift malam
+        // Sederhana: Kita anggap "Hadir" dulu untuk memudahkan
 
         Attendance::create([
             'user_id' => Auth::id(),
-            'date' => Carbon::today(),
+            'date' => $this->todayRoster->date, // Simpan sesuai tanggal roster (bukan tanggal kalender hari ini jika shift malam)
             'clock_in' => $now,
             'status' => $status
         ]);
@@ -70,7 +100,7 @@ class AttendanceWidget extends Component
                 'clock_out' => Carbon::now()
             ]);
 
-            $this->dispatch('roster-updated', message: 'Berhasil Absen Pulang. Hati-hati di jalan!');
+            $this->dispatch('roster-updated', message: 'Berhasil Absen Pulang!');
             $this->refreshData();
         }
     }

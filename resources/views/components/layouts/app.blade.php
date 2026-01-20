@@ -8,6 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
     <style>
         @keyframes blob {
@@ -22,6 +23,22 @@
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            70% {
+                opacity: 1;
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        .animate-pop-in {
+            animation: popIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
     </style>
     <script>
@@ -132,6 +149,12 @@
                     showConfirmButton: false,
                     toast: true,
                     position: 'top-end',
+                    showClass: {
+                        popup: 'animate__animated animate__flipInX'
+                    },
+                    hideClass: {
+                        popup: 'animate__animated animate__flipOutX'
+                    },
                     background: '#fff',
                     customClass: {
                         popup: 'shadow-xl rounded-xl border border-gray-100'

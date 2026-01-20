@@ -35,18 +35,19 @@
         </div>
     </div>
 
-    {{-- BAGIAN 2: WIDGET ABSENSI & STATISTIK (EXECUTIVE DASHBOARD) --}}
+    {{{-- BAGIAN 2: WIDGET ABSENSI & STATISTIK --}}
+    {{-- PERHATIKAN: grid-cols-4 (Bukan 3 lagi) --}}
     <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 mb-10 animate-fade-in-up">
         
-        {{-- 1. WIDGET ABSENSI (KOMPONEN BARU) --}}
+        {{-- 1. WIDGET ABSENSI (KOLOM KIRI) --}}
         <div class="md:col-span-1">
             <livewire:attendance-widget />
         </div>
 
-        {{-- 2. KARTU STATISTIK LAINNYA --}}
+        {{-- 2. KARTU STATISTIK (3 KOLOM KANAN) --}}
         <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6">
             
-            {{-- Kartu 1: Total Personil --}}
+            {{-- Kartu Total Pegawai --}}
             <div class="bg-white rounded-2xl p-6 shadow-lg border border-indigo-50 flex items-center justify-between relative overflow-hidden group">
                 <div class="absolute right-0 top-0 h-24 w-24 bg-indigo-100 rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
                 <div>
@@ -59,8 +60,8 @@
                 </div>
             </div>
 
-            {{-- Kartu 2: Dinas Malam Hari Ini --}}
-            <div class="bg-white rounded-2xl p-6 shadow-lg border border-purple-50 flex items-center justify-between relative overflow-hidden group">
+            {{-- Kartu Dinas Malam --}}
+             <div class="bg-white rounded-2xl p-6 shadow-lg border border-purple-50 flex items-center justify-between relative overflow-hidden group">
                 <div class="absolute right-0 top-0 h-24 w-24 bg-purple-100 rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
                 <div>
                     <p class="text-gray-500 text-sm font-medium">Dinas Malam (Hari Ini)</p>
@@ -72,7 +73,7 @@
                 </div>
             </div>
 
-            {{-- Kartu 3: Grafik Donat Distribusi Shift --}}
+            {{-- Kartu Grafik --}}
             <div class="bg-white rounded-2xl p-4 shadow-lg border border-gray-50 flex items-center gap-4 relative">
                 <div class="w-24 h-24 flex-shrink-0 relative">
                     <canvas id="shiftChart"></canvas>
@@ -80,18 +81,13 @@
                 <div>
                     <p class="text-gray-500 text-sm font-medium mb-1">Tren Shift Bulan Ini</p>
                     <div class="space-y-1">
-                        <div class="flex items-center text-xs text-gray-600">
-                            <span class="w-2 h-2 rounded-full bg-yellow-400 mr-2"></span> Pagi
-                        </div>
-                        <div class="flex items-center text-xs text-gray-600">
-                            <span class="w-2 h-2 rounded-full bg-blue-400 mr-2"></span> Siang
-                        </div>
-                        <div class="flex items-center text-xs text-gray-600">
-                            <span class="w-2 h-2 rounded-full bg-slate-800 mr-2"></span> Malam
-                        </div>
+                        <div class="flex items-center text-xs text-gray-600"><span class="w-2 h-2 rounded-full bg-yellow-400 mr-2"></span> Pagi</div>
+                        <div class="flex items-center text-xs text-gray-600"><span class="w-2 h-2 rounded-full bg-blue-400 mr-2"></span> Siang</div>
+                        <div class="flex items-center text-xs text-gray-600"><span class="w-2 h-2 rounded-full bg-slate-800 mr-2"></span> Malam</div>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 
