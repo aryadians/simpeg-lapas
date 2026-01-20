@@ -6,6 +6,7 @@ use App\Livewire\EmployeeManager;
 use App\Http\Controllers\RosterReportController;
 use App\Livewire\Auth\Login; // Import Login
 use App\Livewire\UserProfile;
+use App\Livewire\LeaveManager;
 
 Route::get('/', function () {
     return view('welcome');
@@ -31,5 +32,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/', RosterDashboard::class);
     Route::get('/pegawai', EmployeeManager::class);
     Route::get('/cetak-laporan', [RosterReportController::class, 'print']);
+    Route::get('/cuti', LeaveManager::class);
 });
 Route::get('/profil', UserProfile::class);

@@ -5,7 +5,8 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Roster;
 use App\Models\Shift;
-use App\Models\User; // Penting: Import Model User
+use App\Models\User;
+use App\Models\LeaveRequest; // PENTING: Import Model Cuti
 use Carbon\Carbon;
 
 class RosterDashboard extends Component
@@ -47,7 +48,7 @@ class RosterDashboard extends Component
     }
 
     // ==========================================
-    // FITUR 1: AUTO GENERATE JADWAL (MAGIC BUTTON)
+    // FITUR 1: AUTO GENERATE JADWAL (DENGAN CEK CUTI)
     // ==========================================
     public function generateSchedule()
     {
@@ -57,7 +58,7 @@ class RosterDashboard extends Component
         $year = $targetDate->year;
         $daysInMonth = $targetDate->daysInMonth;
 
-        // 2. Hapus jadwal lama di bulan tersebut (Reset) agar tidak duplikat
+        // 2. Hapus jadwal lama di bulan tersebut (Reset)
         Roster::whereMonth('date', $month)
             ->whereYear('date', $year)
             ->delete();
@@ -65,30 +66,41 @@ class RosterDashboard extends Component
         // 3. Ambil semua pegawai
         $users = User::all();
 
-        // 4. Tentukan Pola Shift
-        // Asumsi ID Shift di database: 1=Pagi, 2=Siang, 3=Malam, null=Libur
-        // Silakan sesuaikan angka ini jika ID di database kamu berbeda
+        // 4. Pola Shift: 1=Pagi, 2=Siang, 3=Malam, null=Libur
         $pattern = [1, 2, 3, null];
 
         $rostersToInsert = [];
 
-        // 5. Mulai Perulangan (Looping) untuk setiap Pegawai
+        // 5. Mulai Perulangan
         foreach ($users as $index => $user) {
 
-            // Trik Matematika: Offset pola berdasarkan urutan user
-            // User 1 mulai pola ke-0, User 2 mulai pola ke-1, dst.
-            // Supaya tidak semua orang masuk Pagi di hari yang sama.
+            // Offset pola agar shift tidak seragam
             $patternIndex = $index % count($pattern);
 
             for ($day = 1; $day <= $daysInMonth; $day++) {
 
-                // Ambil Shift ID dari pola saat ini
-                $shiftId = $pattern[$patternIndex];
-
-                // Buat tanggal lengkap YYYY-MM-DD
+                // Buat tanggal YYYY-MM-DD
                 $currentDate = Carbon::createFromDate($year, $month, $day)->format('Y-m-d');
 
-                // Jika shiftId tidak null (artinya bukan hari libur), catat jadwalnya
+                // --- LOGIKA UTAMA: CEK CUTI ---
+                // Cek apakah user sedang cuti (approved) di tanggal ini
+                $isOnLeave = LeaveRequest::where('user_id', $user->id)
+                    ->where('status', 'approved')
+                    ->where('start_date', '<=', $currentDate)
+                    ->where('end_date', '>=', $currentDate)
+                    ->exists();
+
+                if ($isOnLeave) {
+                    // Jika Cuti: Jangan buat jadwal (Lewati),
+                    // TAPI tetap putar pola agar urutan shift tidak rusak
+                    $patternIndex = ($patternIndex + 1) % count($pattern);
+                    continue; // Lanjut ke hari berikutnya
+                }
+                // ------------------------------
+
+                // Ambil Shift ID dari pola
+                $shiftId = $pattern[$patternIndex];
+
                 if ($shiftId) {
                     $rostersToInsert[] = [
                         'user_id' => $user->id,
@@ -99,19 +111,19 @@ class RosterDashboard extends Component
                     ];
                 }
 
-                // Putar pola untuk hari berikutnya (0 -> 1 -> 2 -> 3 -> 0 ...)
+                // Putar pola untuk hari berikutnya
                 $patternIndex = ($patternIndex + 1) % count($pattern);
             }
         }
 
-        // 6. Bulk Insert (Simpan masal per 500 data agar cepat)
+        // 6. Simpan Data
         foreach (array_chunk($rostersToInsert, 500) as $chunk) {
             Roster::insert($chunk);
         }
 
-        // 7. Refresh tampilan & Kirim Notifikasi
+        // 7. Refresh
         $this->generateDateRange();
-        $this->dispatch('roster-updated', message: 'Jadwal otomatis berhasil dibuat!');
+        $this->dispatch('roster-updated', message: 'Jadwal otomatis berhasil dibuat (Pegawai Cuti dilewati)!');
     }
 
     // ==========================================
@@ -153,27 +165,26 @@ class RosterDashboard extends Component
     // ==========================================
     public function render()
     {
-        // 1. Ambil Data Jadwal untuk Kalender
+        // 1. Data Jadwal Kalender
         $rosters = Roster::with(['user', 'shift'])
             ->whereIn('date', $this->dateRange)
             ->get()
             ->groupBy('date');
 
-        // 2. Hitung Statistik Grafik (Donat)
+        // 2. Statistik Grafik (FIX: Mengikuti Bulan Kalender)
         $shiftStats = Roster::whereMonth('date', $this->startDate->month)
-            ->whereYear('date', $this->startDate->year) // Tambahkan tahun biar aman
+            ->whereYear('date', $this->startDate->year)
             ->with('shift')
             ->get()
             ->groupBy('shift.name')
             ->map->count();
 
-        // 3. Hitung Statistik Kartu (Header)
+        // 3. Statistik Kartu
         $todayStats = [
             'total_pegawai' => User::count(),
             'dinas_malam' => Roster::where('date', Carbon::today())
                 ->whereHas('shift', fn($q) => $q->where('is_overnight', true))
                 ->count(),
-            // Off duty = Total Pegawai - Pegawai yang punya jadwal hari ini
             'off_duty' => User::count() - Roster::where('date', Carbon::today())->count()
         ];
 
