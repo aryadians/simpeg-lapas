@@ -5,6 +5,7 @@ use App\Livewire\RosterDashboard;
 use App\Livewire\EmployeeManager;
 use App\Http\Controllers\RosterReportController;
 use App\Livewire\Auth\Login; // Import Login
+use App\Livewire\UserProfile;
 
 Route::get('/', function () {
     return view('welcome');
@@ -12,6 +13,7 @@ Route::get('/', function () {
 Route::get('/', RosterDashboard::class);
 Route::get('/pegawai', EmployeeManager::class);
 Route::get('/cetak-laporan', [RosterReportController::class, 'print']);
+
 // 1. Rute Login (Bisa diakses siapa saja/Guest)
 Route::get('/login', Login::class)->name('login')->middleware('guest');
 
@@ -30,3 +32,4 @@ Route::middleware('auth')->group(function () {
     Route::get('/pegawai', EmployeeManager::class);
     Route::get('/cetak-laporan', [RosterReportController::class, 'print']);
 });
+Route::get('/profil', UserProfile::class);

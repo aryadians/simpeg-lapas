@@ -160,7 +160,8 @@ class RosterDashboard extends Component
             ->groupBy('date');
 
         // 2. Hitung Statistik Grafik (Donat)
-        $shiftStats = Roster::whereMonth('date', Carbon::now()->month)
+        $shiftStats = Roster::whereMonth('date', $this->startDate->month)
+            ->whereYear('date', $this->startDate->year) // Tambahkan tahun biar aman
             ->with('shift')
             ->get()
             ->groupBy('shift.name')

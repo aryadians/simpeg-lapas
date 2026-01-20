@@ -23,15 +23,22 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        // Daftar jabatan di Lapas
+        $jabatanList = ['Anggota Jaga', 'Komandan Jaga', 'Staf KPLP', 'P2U', 'Staf Registrasi'];
+
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
+            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'remember_token' => \Illuminate\Support\Str::random(10),
+
+            // Data Khusus SIMPEG
+            'nip' => fake()->unique()->numerify('19##########00#'), // NIP format angka
+            'jabatan' => fake()->randomElement($jabatanList),
+            'grade' => fake()->numberBetween(5, 12),
         ];
     }
-
     /**
      * Indicate that the model's email address should be unverified.
      */

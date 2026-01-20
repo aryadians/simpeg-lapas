@@ -61,10 +61,12 @@
                 
                 {{-- User Info & Logout (Dinamis sesuai Login) --}}
                 <div class="flex items-center gap-4">
-                    <div class="text-right hidden sm:block">
+                    
+                    {{-- UPDATE: Link ke Halaman Profil (Klik Nama untuk Ganti Password) --}}
+                    <a href="/profil" class="text-right hidden sm:block hover:opacity-75 transition cursor-pointer" title="Klik untuk edit profil">
                         <div class="text-sm font-bold text-gray-900">{{ auth()->user()->name ?? 'User' }}</div>
                         <div class="text-xs text-gray-500">{{ auth()->user()->jabatan ?? 'Petugas' }}</div>
-                    </div>
+                    </a>
                     
                     {{-- Tombol Logout --}}
                     <a href="/logout" class="h-10 w-10 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition shadow-sm" title="Keluar">
