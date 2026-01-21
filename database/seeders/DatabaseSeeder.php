@@ -64,6 +64,8 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        $this->call(PostSeeder::class);
+
         // ---------------------------------------------------
         // 3. BUAT 50 PEGAWAI DUMMY
         // ---------------------------------------------------

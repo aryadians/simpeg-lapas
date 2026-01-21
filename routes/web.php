@@ -41,6 +41,9 @@ Route::middleware('auth')->group(function () {
     // Laporan Tukin
     Route::get('/laporan-tukin', TukinReport::class)->name('tukin.report');
 
+    // Plotting Regu & Pos Jaga
+    Route::get('/post-assignment', \App\Livewire\PostAssignment::class)->name('post.assignment');
+
     // Profil User (Ganti Password)
     Route::get('/profil', UserProfile::class)->name('profil');
 

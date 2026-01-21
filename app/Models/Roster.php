@@ -24,4 +24,14 @@ class Roster extends Model
     {
         return $this->belongsTo(Shift::class);
     }
+
+    /**
+     * Get the post that owns the Roster
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function post(): BelongsTo
+    {
+        return $this->belongsTo(Post::class);
+    }
 }
