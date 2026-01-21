@@ -21,7 +21,13 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                 </a>
                 
-                @if(auth()->user()->role === 'admin')
+                @if(strtolower(trim(auth()->user()->role)) === 'admin')
+                <button wire:click="create"
+                        title="Tambah Jadwal Manual"
+                        class="p-3 h-12 w-auto rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white border-2 border-indigo-300 shadow-lg shadow-indigo-500/30 transition-all duration-300 transform hover:scale-105 active:scale-95 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                    <span class="hidden md:inline">Tambah</span>
+                </button>
                 <button onclick="Livewire.dispatch('confirm-dialog', { title: 'Anda Yakin?', text: 'Jadwal lama di bulan ini akan dihapus/ditimpa.', confirm_event: 'generate-schedule-confirmed', confirm_params: {} })"
                         title="Generate Jadwal Otomatis"
                         class="p-3 h-12 w-auto rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white border-2 border-emerald-300 shadow-lg shadow-emerald-500/30 transition-all duration-300 transform hover:scale-105 active:scale-95 flex items-center gap-2">
@@ -95,25 +101,42 @@
                                 <p class="text-sm opacity-80">{{ $carbonDate->translatedFormat('d F Y') }}</p>
                             </div>
                             <div class="p-3 space-y-2 h-[400px] overflow-y-auto">
-                                @forelse($rosters[$date] ?? [] as $roster)
-                                    <div @if(auth()->user()->role === 'admin') wire:click="editRoster({{ $roster->id }})" @endif 
-                                         class="flex items-center p-2.5 rounded-lg transition-all duration-200
-                                         {{ auth()->user()->role === 'admin' ? 'cursor-pointer hover:bg-white hover:shadow-md hover:scale-[1.03] transform' : '' }}">
-                                        
-                                        <div class="h-10 w-10 rounded-lg bg-gray-200 text-gray-600 flex items-center justify-center font-bold shrink-0">
-                                            {{ substr($roster->user->name, 0, 1) }}
-                                        </div>
-                                        <div class="ml-3 overflow-hidden">
-                                            <p class="text-sm font-bold text-gray-800 truncate">{{ $roster->user->name }}</p>
-                                            <span class="text-xs px-2 py-0.5 rounded font-semibold
-                                                {{ $roster->shift->is_overnight ? 'bg-slate-800 text-white' : 
-                                                  ($roster->shift->name == 'Regu Pagi' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800') }}">
-                                                {{ $roster->shift->name }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                @empty
-                                    <div class="h-full flex items-center justify-center text-gray-400">
+                                                                @forelse($rosters[$date] ?? [] as $roster)
+                                                                    <div class="flex items-center p-2.5 rounded-lg transition-all duration-200 {{ auth()->user()->role === 'admin' ? 'hover:bg-white hover:shadow-md' : '' }}">
+                                                                        {{-- User and Shift Info --}}
+                                                                        <div class="flex items-center grow">
+                                                                            <div class="h-10 w-10 rounded-lg bg-gray-200 text-gray-600 flex items-center justify-center font-bold shrink-0">
+                                                                                {{ substr($roster->user->name, 0, 1) }}
+                                                                            </div>
+                                                                            <div class="ml-3 overflow-hidden">
+                                                                                <p class="text-sm font-bold text-gray-800 truncate">{{ $roster->user->name }}</p>
+                                                                                <span class="text-xs px-2 py-0.5 rounded font-semibold
+                                                                                    {{ $roster->shift->is_overnight ? 'bg-slate-800 text-white' : 
+                                                                                      ($roster->shift->name == 'Regu Pagi' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800') }}">
+                                                                                    {{ $roster->shift->name }}
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                
+                                                                        {{-- Action Buttons for Admin --}}
+                                                                        @if(strtolower(trim(auth()->user()->role)) === 'admin')
+                                                                        <div class="shrink-0 flex items-center gap-1">
+                                                                            {{-- Edit Button --}}
+                                                                            <button wire:click="editRoster({{ $roster->id }})" title="Ubah Jadwal" class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:bg-blue-50 hover:text-blue-500 transition">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L16.732 3.732z" />
+                                                                                </svg>
+                                                                            </button>
+                                                                            {{-- Delete Button --}}
+                                                                            <button wire:click="delete({{ $roster->id }})" title="Hapus Jadwal" class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:bg-red-50 hover:text-red-500 transition">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                                </svg>
+                                                                            </button>
+                                                                        </div>
+                                                                        @endif
+                                                                    </div>
+                                                                @empty                                    <div class="h-full flex items-center justify-center text-gray-400">
                                         <p>Libur / Tidak Ada Jadwal</p>
                                     </div>
                                 @endforelse
@@ -130,7 +153,7 @@
     </main>
 
     {{-- ====================================================================== --}}
-    {{-- MODAL EDIT JADWAL (Tidak diubah, sudah bagus)
+    {{-- MODAL CRUD JADWAL
     {{-- ====================================================================== --}}
     @if($isModalOpen)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
@@ -153,27 +176,58 @@
 
             <div class="relative bg-white rounded-2xl shadow-2xl border">
                 <div class="flex items-center justify-between p-4 border-b">
-                    <h3 class="text-xl font-bold text-gray-900">Ubah Jadwal Dinas</h3>
+                    <h3 class="text-xl font-bold text-gray-900">
+                        {{ $isEditMode ? 'Ubah Jadwal Dinas' : 'Tambah Jadwal Baru' }}
+                    </h3>
                     <button wire:click="closeModal" type="button" class="text-gray-400 hover:text-gray-900 w-8 h-8 flex justify-center items-center rounded-lg hover:bg-gray-100 transition">✕</button>
                 </div>
-                <div class="p-5 space-y-4">
-                    <p class="text-gray-600">Mengubah shift untuk: <span class="font-bold text-indigo-700">{{ $selectedRosterName }}</span></p>
-                    <div>
-                        <label class="block mb-2 text-sm font-medium text-gray-700">Pilih Shift Baru:</label>
-                        <select wire:model="selectedShiftId" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 transition">
-                            @foreach($shifts as $shift)
-                                <option value="{{ $shift->id }}">
-                                    {{ $shift->name }} ({{ \Carbon\Carbon::parse($shift->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($shift->end_time)->format('H:i') }})
-                                </option>
-                            @endforeach
-                        </select>
+                <form wire:submit.prevent="save">
+                    <div class="p-5 space-y-4">
+                        
+                        {{-- User Selection --}}
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-gray-700">Pegawai</label>
+                            @if($isEditMode)
+                                <input type="text" value="{{ $rosterUserName }}" class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3" disabled>
+                            @else
+                                <select wire:model.live="userId" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 transition">
+                                    <option value="">Pilih Pegawai</option>
+                                    @foreach($allUsers as $user)
+                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('userId') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                            @endif
+                        </div>
+
+                        {{-- Date Selection --}}
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-gray-700">Tanggal</label>
+                            <input type="date" wire:model.live="date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 transition" {{ $isEditMode ? 'disabled' : '' }}>
+                            @error('date') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                        </div>
+                        
+                        {{-- Shift Selection --}}
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-gray-700">Pilih Shift</label>
+                            <select wire:model.live="shiftId" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 transition">
+                                <option value="">Pilih Shift</option>
+                                @foreach($shifts as $shift)
+                                    <option value="{{ $shift->id }}">
+                                        {{ $shift->name }} ({{ \Carbon\Carbon::parse($shift->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($shift->end_time)->format('H:i') }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('shiftId') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                        </div>
+
                     </div>
-                </div>
-                <div class="flex items-center p-4 border-t bg-gray-50 rounded-b-2xl">
-                    <button wire:click="saveRoster" type="button" class="text-white bg-indigo-600 hover:bg-indigo-700 font-bold rounded-lg text-sm px-5 py-2.5 shadow-md transform transition hover:-translate-y-0.5 w-full">
-                        Simpan Perubahan
-                    </button>
-                </div>
+                    <div class="flex items-center p-4 border-t bg-gray-50 rounded-b-2xl">
+                        <button type="submit" class="text-white bg-indigo-600 hover:bg-indigo-700 font-bold rounded-lg text-sm px-5 py-2.5 shadow-md transform transition hover:-translate-y-0.5 w-full">
+                            {{ $isEditMode ? 'Simpan Perubahan' : 'Tambahkan Jadwal' }}
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

@@ -69,7 +69,7 @@ class EmployeeManager extends Component
 
     public function store()
     {
-        if (Auth::user()->role !== 'admin') {
+        if (strtolower(trim(Auth::user()->role)) !== 'admin') {
             $this->dispatch('flash-message', type: 'error', title: 'Akses Ditolak!', text: 'Anda tidak memiliki izin untuk melakukan tindakan ini.');
             return;
         }
@@ -101,7 +101,7 @@ class EmployeeManager extends Component
 
     public function edit($id)
     {
-        if (Auth::user()->role !== 'admin') return;
+        if (strtolower(trim(Auth::user()->role)) !== 'admin') return;
 
         $employee = User::findOrFail($id);
         $this->employeeId = $id;
@@ -117,7 +117,7 @@ class EmployeeManager extends Component
 
     public function delete($id)
     {
-        if (Auth::user()->role !== 'admin') {
+        if (strtolower(trim(Auth::user()->role)) !== 'admin') {
              $this->dispatch('flash-message', type: 'error', title: 'Akses Ditolak!', text: 'Anda tidak memiliki izin untuk melakukan tindakan ini.');
             return;
         }
@@ -133,7 +133,7 @@ class EmployeeManager extends Component
 
     public function resetPassword($id)
     {
-        if (auth()->user()->role !== 'admin') {
+        if (strtolower(trim(auth()->user()->role)) !== 'admin') {
             $this->dispatch('flash-message', type: 'error', title: 'Akses Ditolak!', text: 'Anda tidak memiliki izin untuk melakukan tindakan ini.');
             return;
         }

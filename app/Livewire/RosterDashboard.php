@@ -18,9 +18,12 @@ class RosterDashboard extends Component
 
     // Variabel untuk Modal Popup
     public $isModalOpen = false;
-    public $selectedRosterId = null;
-    public $selectedRosterName = '';
-    public $selectedShiftId = null;
+    public $isEditMode = false;
+    public $rosterId = null;
+    public $userId = null;
+    public $shiftId = null;
+    public $date = null;
+    public $rosterUserName = '';
 
     #[On('attendance-changed')]
     public function refreshDashboard()
@@ -62,7 +65,7 @@ class RosterDashboard extends Component
     public function generateSchedule()
     {
         // KEAMANAN: Cek Role
-        if (Auth::user()->role !== 'admin') {
+        if (strtolower(trim(Auth::user()->role)) !== 'admin') {
             $this->dispatch('roster-updated', message: 'AKSES DITOLAK: Anda bukan Admin!');
             return;
         }
@@ -149,48 +152,112 @@ class RosterDashboard extends Component
     }
 
     // ==========================================
-    // FITUR 2: EDIT MANUAL (SECURE MODAL)
+    // FITUR 2: CRUD JADWAL MANUAL
     // ==========================================
+    private function resetForm()
+    {
+        $this->isModalOpen = false;
+        $this->isEditMode = false;
+        $this->rosterId = null;
+        $this->userId = null;
+        $this->shiftId = null;
+        $this->date = null;
+        $this->rosterUserName = '';
+    }
+
+    public function create()
+    {
+        // KEAMANAN: Hanya admin
+        if (strtolower(trim(Auth::user()->role)) !== 'admin') return;
+        
+        $this->resetForm();
+        $this->isModalOpen = true;
+        $this->date = $this->startDate->format('Y-m-d'); // Default to current view start date
+    }
+
     public function editRoster($rosterId)
     {
-        // KEAMANAN: Staff tidak boleh buka modal edit
-        if (Auth::user()->role !== 'admin') {
-            return;
-        }
+        // KEAMANAN: Hanya admin
+        if (strtolower(trim(Auth::user()->role)) !== 'admin') return;
 
         $roster = Roster::with('user')->find($rosterId);
 
         if ($roster) {
-            $this->selectedRosterId = $roster->id;
-            $this->selectedRosterName = $roster->user->name;
-            $this->selectedShiftId = $roster->shift_id;
+            $this->resetForm();
+            $this->isEditMode = true;
+            $this->rosterId = $roster->id;
+            $this->userId = $roster->user_id;
+            $this->shiftId = $roster->shift_id;
+            $this->date = Carbon::parse($roster->date)->format('Y-m-d');
+            $this->rosterUserName = $roster->user->name;
             $this->isModalOpen = true;
         }
     }
 
-    public function saveRoster()
+    public function save()
     {
-        // KEAMANAN: Double Check saat simpan
-        if (Auth::user()->role !== 'admin') {
-            return;
+        if (strtolower(trim(Auth::user()->role)) !== 'admin') return;
+
+        $rules = [
+            'userId' => 'required|exists:users,id',
+            'shiftId' => 'required|exists:shifts,id',
+            'date' => 'required|date',
+        ];
+
+        // Unique rule for creating new roster
+        if (!$this->isEditMode) {
+            $rules['date'] = [
+                'required',
+                'date',
+                // Custom rule to check for uniqueness
+                function ($attribute, $value, $fail) {
+                    if (Roster::where('user_id', $this->userId)->where('date', $value)->exists()) {
+                        $fail('Pegawai ini sudah memiliki jadwal pada tanggal tersebut.');
+                    }
+                },
+            ];
+        }
+        
+        $this->validate($rules);
+
+        $data = [
+            'user_id' => $this->userId,
+            'shift_id' => $this->shiftId,
+            'date' => $this->date,
+        ];
+
+        if ($this->isEditMode) {
+            Roster::find($this->rosterId)->update($data);
+            $message = 'Jadwal berhasil diperbarui.';
+        } else {
+            Roster::create($data);
+            $message = 'Jadwal baru berhasil ditambahkan.';
         }
 
-        $roster = Roster::find($this->selectedRosterId);
+        $this->resetForm();
+        $this->dispatch('flash-message', type: 'success', title: 'Berhasil!', text: $message);
+        $this->dispatch('roster-updated');
+    }
+    
+    public function delete($rosterId)
+    {
+        if (strtolower(trim(Auth::user()->role)) !== 'admin') return;
+        $this->dispatch('confirm-dialog', title: 'Hapus Jadwal?', text: 'Anda yakin ingin menghapus jadwal ini secara permanen?', confirm_event: 'delete-roster-confirmed', confirm_params: $rosterId);
+    }
 
-        if ($roster) {
-            $roster->update([
-                'shift_id' => $this->selectedShiftId
-            ]);
-        }
-
-        $this->isModalOpen = false;
-        $this->dispatch('flash-message', type: 'success', title: 'Berhasil!', text: 'Perubahan jadwal disimpan.');
-        $this->dispatch('roster-updated', message: 'Perubahan jadwal disimpan.');
+    #[On('delete-roster-confirmed')]
+    public function deleteConfirmed($rosterId)
+    {
+        if (strtolower(trim(Auth::user()->role)) !== 'admin') return;
+        
+        Roster::find($rosterId)->delete();
+        $this->dispatch('flash-message', text: 'Jadwal telah dihapus.');
+        $this->dispatch('roster-updated');
     }
 
     public function closeModal()
     {
-        $this->isModalOpen = false;
+        $this->resetForm();
     }
 
     // ==========================================
@@ -250,6 +317,7 @@ class RosterDashboard extends Component
 
         return view('livewire.roster-dashboard', [
             'rosters' => $rosters,
+            'allUsers' => User::orderBy('name')->get(),
             'shifts' => Shift::all(),
             'shiftStats' => $shiftStats,
             'todayStats' => $todayStats,

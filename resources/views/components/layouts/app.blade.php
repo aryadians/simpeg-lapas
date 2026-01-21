@@ -5,12 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'SIMPEG Lapas' }}</title>
     
+    {{-- CDN Libraries --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
+    {{-- Custom Styles & Animations --}}
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        /* Animation Keyframes */
         @keyframes blob {
             0% { transform: translate(0px, 0px) scale(1); }
             33% { transform: translate(30px, -50px) scale(1.1); }
@@ -24,29 +30,20 @@
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .animate-pop-in { animation: popIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
         @keyframes popIn {
-            0% {
-                opacity: 0;
-                transform: scale(0.5);
-            }
-            70% {
-                opacity: 1;
-                transform: scale(1.1);
-            }
-            100% {
-                transform: scale(1);
-            }
-        }
-        .animate-pop-in {
-            animation: popIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            0% { opacity: 0; transform: scale(0.5); }
+            70% { opacity: 1; transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
     </style>
+
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        indigo: { 600: '#4f46e5', 100: '#e0e7ff' },
+                        indigo: { 600: '#4f46e5', 50: '#eef2ff' },
                         purple: { 600: '#9333ea' }
                     }
                 }
@@ -54,101 +51,111 @@
         }
     </script>
 </head>
-<body class="bg-gray-50 antialiased font-sans">
+<body class="bg-gray-50 antialiased text-gray-800">
 
-    {{-- NAVBAR (MENU ATAS) --}}
-    <nav class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 sticky top-0 z-50">
+    {{-- ========================================= --}}
+    {{-- NAVBAR BARU (FIX RAPI & SINGLE LINE)      --}}
+    {{-- ========================================= --}}
+    <nav class="bg-white/90 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex">
-                    {{-- Logo Aplikasi --}}
-                    <div class="shrink-0 flex items-center gap-2">
-                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-indigo-500/30">
+            <div class="flex justify-between h-20"> {{-- Tinggi navbar h-20 agar lega --}}
+                
+                {{-- KIRI: Logo & Menu --}}
+                <div class="flex items-center gap-8 overflow-x-auto no-scrollbar">
+                    
+                    {{-- Logo --}}
+                    <div class="shrink-0 flex items-center gap-3">
+                        <div class="h-10 w-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-500/30">
                             S
                         </div>
-                        <span class="font-black text-xl tracking-tight text-gray-800">
+                        <span class="text-2xl font-extrabold text-gray-800 tracking-tight hidden md:block">
                             SIMPEG <span class="text-indigo-600">Lapas</span>
                         </span>
                     </div>
 
-                    {{-- Link Menu Navigasi --}}
-                    <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                    {{-- Menu Navigasi (Desktop) --}}
+                    <div class="hidden lg:flex items-center space-x-1"> 
                         
-                        {{-- 1. Dashboard (Jadwal & Absen) --}}
-                        <a href="/" 
-                           class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out 
-                           {{ request()->is('/') ? 'border-indigo-600 text-indigo-700 font-bold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
-                           📅 Jadwal & Absen
+                        {{-- 1. Jadwal --}}
+                        <a href="/" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->is('/') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
+                            <span class="text-lg group-hover:scale-110 transition-transform">🗓️</span>
+                            <span class="whitespace-nowrap">Jadwal</span>
                         </a>
 
                         {{-- 2. Data Pegawai --}}
-                        <a href="/pegawai" 
-                           class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out 
-                           {{ request()->is('pegawai*') ? 'border-indigo-600 text-indigo-700 font-bold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
-                           👥 Data Pegawai
+                        <a href="/pegawai" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->is('pegawai*') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
+                            <span class="text-lg group-hover:scale-110 transition-transform">👥</span>
+                            <span class="whitespace-nowrap">Pegawai</span>
                         </a>
 
-                        {{-- 3. E-Cuti (Baru) --}}
-                        <a href="/cuti" 
-                           class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out 
-                           {{ request()->is('cuti*') ? 'border-indigo-600 text-indigo-700 font-bold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
-                           🏖️ E-Cuti
+                        {{-- 3. E-Cuti --}}
+                        <a href="/cuti" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->is('cuti*') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
+                            <span class="text-lg group-hover:scale-110 transition-transform">🏖️</span>
+                            <span class="whitespace-nowrap">E-Cuti</span>
                         </a>
 
-                        {{-- 4. Laporan Aplusan (Baru) --}}
-                        <a href="/laporan"
-                           class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out
-                           {{ request()->is('laporan*') ? 'border-indigo-600 text-indigo-700 font-bold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
-                           📋 Laporan Jaga
+                        {{-- 4. Laporan Jaga --}}
+                        <a href="/laporan" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('laporan') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
+                            <span class="text-lg group-hover:scale-110 transition-transform">📋</span>
+                            <span class="whitespace-nowrap">Laporan</span>
                         </a>
 
-                        {{-- 5. Rekap Absensi --}}
-                        <a href="/rekap-absensi"
-                           class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out
-                           {{ request()->is('rekap*') ? 'border-indigo-600 text-indigo-700 font-bold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
-                           📊 Rekap Absen
+                        {{-- 5. Rekap Absen --}}
+                        <a href="/rekap-absensi" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('rekap') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
+                            <span class="text-lg group-hover:scale-110 transition-transform">📊</span>
+                            <span class="whitespace-nowrap">Rekap</span>
                         </a>
 
-                        {{-- 6. Laporan Tukin --}}
-                        <a href="{{ route('tukin.report') }}"
-                            class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out
-                            {{ request()->routeIs('tukin.report') ? 'border-indigo-600 text-indigo-700 font-bold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
-                            💰 Laporan Tukin
+                        {{-- 6. Tukin (Admin Only) --}}
+                        @if(auth()->check() && strtolower(trim(auth()->user()->role)) === 'admin')
+                        <a href="{{ route('tukin.report') }}" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('tukin.*') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
+                            <span class="text-lg group-hover:scale-110 transition-transform">💰</span>
+                            <span class="whitespace-nowrap">Tukin</span>
                         </a>
+                        @endif
 
                     </div>
                 </div>
-                
-                {{-- User Info & Logout --}}
+
+                {{-- KANAN: User Profile & Logout --}}
                 <div class="flex items-center gap-4">
-                    <a href="/profil" class="text-right hidden sm:block hover:bg-gray-50 p-2 rounded-lg transition group cursor-pointer" title="Edit Profil">
-                        <div class="text-sm font-bold text-gray-900 group-hover:text-indigo-600 transition">{{ auth()->user()->name ?? 'User' }}</div>
-                        <div class="text-xs text-gray-500 font-mono">
-                            {{ auth()->user()->role === 'admin' ? '🛡️ Administrator' : '👮 Petugas Jaga' }}
-                        </div>
-                    </a>
                     
-                    <a href="/logout" class="h-10 w-10 rounded-full bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white flex items-center justify-center transition shadow-sm border border-rose-100" title="Keluar Aplikasi">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                    {{-- Info User --}}
+                    <div class="hidden md:flex flex-col items-end mr-2">
+                        <span class="text-sm font-bold text-gray-900">{{ auth()->user()->name ?? 'Guest' }}</span>
+                        <span class="text-[10px] uppercase tracking-wider text-indigo-600 font-bold bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">
+                            {{ auth()->user()->role ?? '-' }}
+                        </span>
+                    </div>
+
+                    {{-- Tombol Logout --}}
+                    <a href="/logout" class="h-10 w-10 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all shadow-sm border border-red-100 group" title="Logout">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
                     </a>
+
                 </div>
             </div>
         </div>
     </nav>
 
     {{-- KONTEN UTAMA --}}
-    <main>
+    <main class="min-h-screen">
         {{ $slot }}
     </main>
 
-    {{-- Script Global SweetAlert --}}
+    {{-- ========================================= --}}
+    {{-- LOGIKA SWEETALERT (TOAST & CONFIRM)       --}}
+    {{-- ========================================= --}}
     <script>
         document.addEventListener('livewire:init', () => {
-            // Listener untuk notifikasi toast (sukses, error, info)
+            
+            // 1. Toast Notification (Pojok Kanan Atas)
             Livewire.on('flash-message', (event) => {
-                const { type = 'success', title = 'Berhasil!', text } = event;
+                // Handle format data (array vs object)
+                const data = Array.isArray(event) ? event[0] : event;
+                const { type = 'success', title = 'Berhasil!', text = '' } = data;
 
                 Swal.fire({
                     icon: type,
@@ -159,38 +166,39 @@
                     showConfirmButton: false,
                     toast: true,
                     position: 'top-end',
-                    showClass: {
-                        popup: 'animate__animated animate__fadeInDown'
-                    },
-                    hideClass: {
-                        popup: 'animate__animated animate__fadeOutUp'
-                    },
                     background: '#fff',
                     customClass: {
-                        popup: 'shadow-xl rounded-xl border border-gray-100 p-4'
-                    }
+                        popup: 'shadow-xl rounded-xl border border-gray-100 p-3'
+                    },
+                    showClass: { popup: 'animate__animated animate__fadeInRight' },
+                    hideClass: { popup: 'animate__animated animate__fadeOutRight' }
                 });
             });
 
-            // Listener untuk dialog konfirmasi (misal: hapus data)
+            // 2. Confirm Dialog (Tengah Layar)
             Livewire.on('confirm-dialog', (event) => {
-                const { title = 'Anda Yakin?', text = 'Tindakan ini tidak dapat dibatalkan!', confirm_event, confirm_params } = event;
+                const data = Array.isArray(event) ? event[0] : event;
+                const { 
+                    title = 'Anda Yakin?', 
+                    text = 'Tindakan ini tidak dapat dibatalkan!', 
+                    confirm_event, 
+                    confirm_params 
+                } = data;
                 
                 Swal.fire({
                     title: title,
                     text: text,
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#4f46e5',
-                    cancelButtonColor: '#d33',
+                    confirmButtonColor: '#4f46e5', // Indigo 600
+                    cancelButtonColor: '#ef4444',  // Red 500
                     confirmButtonText: 'Ya, Lanjutkan!',
                     cancelButtonText: 'Batal',
                     reverseButtons: true,
-                    showClass: {
-                        popup: 'animate__animated animate__zoomIn'
-                    },
-                    hideClass: {
-                        popup: 'animate__animated animate__zoomOut'
+                    customClass: {
+                        popup: 'rounded-2xl',
+                        confirmButton: 'rounded-xl px-4 py-2',
+                        cancelButton: 'rounded-xl px-4 py-2'
                     }
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -198,8 +206,23 @@
                     }
                 });
             });
+
+            // 3. Listener untuk Event 'roster-updated' (Supaya konsisten dengan controller sebelumnya)
+            Livewire.on('roster-updated', (event) => {
+                 const data = Array.isArray(event) ? event[0] : event;
+                 Swal.fire({
+                    icon: 'success',
+                    title: 'Sukses!',
+                    text: data.message || 'Data berhasil diperbarui',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end'
+                });
+            });
         });
     </script>
+    
     @stack('scripts')
 </body>
 </html>
