@@ -18,7 +18,7 @@ class EmployeeManager extends Component
     public $employeeId = null;
 
     // Properti Form
-    public $name, $email, $nip, $jabatan, $grade;
+    public $name, $email, $nip, $jabatan, $grade, $tukin_nominal;
 
     protected $listeners = ['deleteConfirmed' => 'deleteConfirmed', 'resetPasswordConfirmed' => 'resetPasswordConfirmed'];
 
@@ -64,6 +64,7 @@ class EmployeeManager extends Component
         $this->nip = '';
         $this->jabatan = '';
         $this->grade = '';
+        $this->tukin_nominal = '';
     }
 
     public function store()
@@ -79,6 +80,7 @@ class EmployeeManager extends Component
             'nip' => 'required|string|max:20',
             'jabatan' => 'required|string',
             'grade' => 'required|integer',
+            'tukin_nominal' => 'required|numeric|min:0',
         ]);
 
         User::updateOrCreate(['id' => $this->employeeId], [
@@ -87,6 +89,7 @@ class EmployeeManager extends Component
             'nip' => $this->nip,
             'jabatan' => $this->jabatan,
             'grade' => $this->grade,
+            'tukin_nominal' => $this->tukin_nominal,
             'password' => $this->employeeId ? User::find($this->employeeId)->password : Hash::make('password'),
             'role' => 'staff'
         ]);
@@ -107,6 +110,7 @@ class EmployeeManager extends Component
         $this->nip = $employee->nip;
         $this->jabatan = $employee->jabatan;
         $this->grade = $employee->grade;
+        $this->tukin_nominal = $employee->tukin_nominal;
 
         $this->openModal();
     }

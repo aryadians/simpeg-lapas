@@ -6,6 +6,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Attendance;
+use App\Models\Roster;
 
 class User extends Authenticatable
 {
@@ -21,6 +23,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'nip',
+        'jabatan',
+        'grade',
+        'role',
+        'tukin_nominal'
     ];
 
     /**
@@ -44,5 +51,21 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the attendances for the user.
+     */
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    /**
+     * Get the rosters for the user.
+     */
+    public function rosters()
+    {
+        return $this->hasMany(Roster::class);
     }
 }

@@ -44,7 +44,7 @@ class AttendanceWidget extends Component
         $rosterDate = $this->todayRoster->date;
 
         $shiftStart = Carbon::parse($rosterDate . ' ' . $shift->start_time);
-        $shiftEnd = Carbon::parse($rosterDate . ' ' . $shift->end_time);
+        $shiftStart = Carbon::parse($rosterDate . ' ' . $shift->start_time);
 
         if ($shift->is_overnight) {
             $shiftEnd->addDay();
@@ -60,17 +60,9 @@ class AttendanceWidget extends Component
             return;
         }
         
-        $lateThreshold = $shiftStart->copy()->addMinutes(15);
         $status = 'hadir';
-
-        if ($shift->is_overnight) {
-            if ($now->isSameDay($shiftStart) && $now->isAfter($lateThreshold)) {
-                $status = 'terlambat';
-            }
-        } else {
-            if ($now->isAfter($lateThreshold)) {
-                $status = 'terlambat';
-            }
+        if ($now->isAfter($shiftStart)) {
+            $status = 'terlambat';
         }
 
         Attendance::create([

@@ -9,6 +9,7 @@ use App\Livewire\EmployeeManager;
 use App\Livewire\LeaveManager;
 use App\Livewire\Logbook;
 use App\Livewire\UserProfile;
+use App\Livewire\TukinReport;
 use App\Http\Controllers\RosterReportController;
 
 /*
@@ -37,11 +38,15 @@ Route::middleware('auth')->group(function () {
     // Laporan Aplusan (Logbook)
     Route::get('/laporan', Logbook::class)->name('laporan');
 
+    // Laporan Tukin
+    Route::get('/laporan-tukin', TukinReport::class)->name('tukin.report');
+
     // Profil User (Ganti Password)
     Route::get('/profil', UserProfile::class)->name('profil');
 
     // Cetak PDF
     Route::get('/cetak-laporan', [RosterReportController::class, 'print'])->name('cetak');
+    Route::get('/cetak-laporan-tukin/{month}', [RosterReportController::class, 'printTukinReport'])->name('tukin.report.pdf');
     Route::get('/rekap-absensi', \App\Livewire\AttendanceReport::class)->name('rekap');
 
     // Logout

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Roster;
 use App\Models\User;
+use App\Models\Attendance;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf; // Import Library PDF
 
@@ -59,6 +60,86 @@ class RosterReportController extends Controller
         $pdf->setPaper('legal', 'landscape');
 
         return $pdf->stream('Jadwal-Dinas-' . $monthName . '-' . $year . '.pdf');
+    }
+
+    public function printTukinReport($month)
+    {
+        $selectedMonth = Carbon::parse($month);
+
+        $users = User::with(['attendances' => function ($query) use ($selectedMonth) {
+            $query->whereMonth('date', $selectedMonth->month)
+                  ->whereYear('date', $selectedMonth->year);
+        }, 'rosters.shift'])->get();
+
+        $reportData = [];
+
+        foreach ($users as $user) {
+            $totalDeductionPercentage = 0;
+            $userReport = [
+                'name' => $user->name,
+                'nip' => $user->nip,
+                'jabatan' => $user->jabatan,
+                'grade' => $user->grade,
+                'tukin_nominal' => $user->tukin_nominal,
+                'attendances' => [],
+                'total_deduction_percentage' => 0,
+                'total_deduction_amount' => 0,
+                'final_tukin' => $user->tukin_nominal,
+            ];
+
+            $attendances = $user->attendances->keyBy('date');
+            $rosters = $user->rosters->keyBy(function($roster) {
+                return Carbon::parse($roster->date)->format('Y-m-d');
+            });
+
+            $startDate = $selectedMonth->copy()->startOfMonth();
+            $endDate = $selectedMonth->copy()->endOfMonth();
+
+            for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+                $dateString = $date->format('Y-m-d');
+                $attendance = $attendances->get($date->format('Y-m-d'));
+                $roster = $rosters->get($dateString);
+                $shift = $roster ? $roster->shift : null;
+
+                $deduction = 0;
+                
+                if ($attendance) {
+                    if ($attendance->status === 'alpha') {
+                        $deduction = 3;
+                    } elseif ($attendance->status === 'terlambat' && $shift) {
+                        $clockIn = Carbon::parse($attendance->clock_in);
+                        $startTime = Carbon::parse($shift->start_time);
+                        $lateInMinutes = $clockIn->diffInMinutes($startTime);
+
+                        if ($lateInMinutes > 60) {
+                            $deduction = 1.5;
+                        } elseif ($lateInMinutes > 0) {
+                            $deduction = 0.5;
+                        }
+                    }
+                } elseif ($roster) {
+                    $deduction = 3;
+                }
+
+                $totalDeductionPercentage += $deduction;
+            }
+
+            $totalDeductionAmount = ($totalDeductionPercentage / 100) * $user->tukin_nominal;
+            $finalTukin = $user->tukin_nominal - $totalDeductionAmount;
+
+            $userReport['total_deduction_percentage'] = $totalDeductionPercentage;
+            $userReport['total_deduction_amount'] = $totalDeductionAmount;
+            $userReport['final_tukin'] = $finalTukin;
+            
+            $reportData[] = $userReport;
+        }
+
+        $pdf = Pdf::loadView('pdf.tukin-report', [
+            'reportData' => $reportData,
+            'month' => $selectedMonth->locale('id')->isoFormat('MMMM YYYY')
+        ]);
+
+        return $pdf->stream('Laporan-Tukin-' . $selectedMonth->format('F-Y') . '.pdf');
     }
 }
 

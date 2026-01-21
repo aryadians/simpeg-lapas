@@ -96,18 +96,25 @@
                         </a>
 
                         {{-- 4. Laporan Aplusan (Baru) --}}
-                        <a href="/laporan" 
-                           class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out 
+                        <a href="/laporan"
+                           class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out
                            {{ request()->is('laporan*') ? 'border-indigo-600 text-indigo-700 font-bold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                            📋 Laporan Jaga
                         </a>
-                        @if(auth()->user()->role === 'admin')
-<a href="/rekap-absensi" 
-   class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out 
-   {{ request()->is('rekap*') ? 'border-indigo-600 text-indigo-700 font-bold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
-   📊 Rekap Absen
-</a>
-@endif
+
+                        {{-- 5. Rekap Absensi --}}
+                        <a href="/rekap-absensi"
+                           class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out
+                           {{ request()->is('rekap*') ? 'border-indigo-600 text-indigo-700 font-bold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                           📊 Rekap Absen
+                        </a>
+
+                        {{-- 6. Laporan Tukin --}}
+                        <a href="{{ route('tukin.report') }}"
+                            class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out
+                            {{ request()->routeIs('tukin.report') ? 'border-indigo-600 text-indigo-700 font-bold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                            💰 Laporan Tukin
+                        </a>
 
                     </div>
                 </div>

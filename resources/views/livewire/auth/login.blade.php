@@ -45,7 +45,7 @@
             <button type="submit" 
                     class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-600/30 transform transition-all duration-300 hover:shadow-indigo-600/50 hover:-translate-y-1 active:scale-95 group">
                 <span wire:loading.remove wire:target="login">
-                    MASUK KE SISTEM
+                    Login
                 </span>
                 <div wire:loading wire:target="login" class="flex items-center justify-center">
                     <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -58,6 +58,6 @@
         </form>
     </div>
     <div class="text-center mt-6 text-indigo-300/60 text-xs">
-        &copy; {{ date('Y') }} Lapas Kelas IIB Purwakarta
+        &copy; {{ date('Y') }} Lapas Kelas IIB Jombang
     </div>
 </div>

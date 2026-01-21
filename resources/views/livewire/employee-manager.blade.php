@@ -50,9 +50,12 @@
                         <div class="flex-1">
                             <h3 class="font-bold text-gray-800 text-lg leading-tight truncate group-hover:text-indigo-600 transition-colors">{{ $employee->name }}</h3>
                             <p class="text-xs text-gray-500 font-mono tracking-wide">{{ $employee->nip }}</p>
-                             <div class="mt-2">
+                             <div class="mt-2 flex items-center gap-4">
                                 <span class="bg-indigo-50 text-indigo-700 py-1 px-3 rounded-full text-xs font-bold">
                                     {{ $employee->jabatan }}
+                                </span>
+                                <span class="bg-green-50 text-green-700 py-1 px-3 rounded-full text-xs font-bold">
+                                    Rp {{ number_format($employee->tukin_nominal, 0, ',', '.') }}
                                 </span>
                             </div>
                         </div>
@@ -131,16 +134,22 @@
                         </div>
                     </div>
 
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Jabatan</label>
+                        <input wire:model="jabatan" type="text" placeholder="Ex: Anggota Jaga" class="w-full bg-gray-100 border-transparent text-gray-900 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                        @error('jabatan') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                    </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">Jabatan</label>
-                            <input wire:model="jabatan" type="text" placeholder="Ex: Anggota Jaga" class="w-full bg-gray-100 border-transparent text-gray-900 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
-                            @error('jabatan') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-                        </div>
-                        <div>
+                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">Grade Tukin</label>
                             <input wire:model="grade" type="number" class="w-full bg-gray-100 border-transparent text-gray-900 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition" placeholder="Contoh: 5">
                             @error('grade') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Nominal Tukin (Rp)</label>
+                            <input wire:model="tukin_nominal" type="number" class="w-full bg-gray-100 border-transparent text-gray-900 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition" placeholder="Contoh: 5000000">
+                            @error('tukin_nominal') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                         </div>
                     </div>
                 </div>
