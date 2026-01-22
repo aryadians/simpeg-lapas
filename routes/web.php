@@ -11,6 +11,7 @@ use App\Livewire\Logbook;
 use App\Livewire\UserProfile;
 use App\Livewire\TukinReport;
 use App\Http\Controllers\RosterReportController;
+use App\Livewire\IncidentManager;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +32,9 @@ Route::middleware('auth')->group(function () {
 
     // Manajemen Pegawai
     Route::get('/pegawai', EmployeeManager::class)->name('pegawai');
+
+    // Laporan Kejadian Internal
+    Route::get('/laporan-kejadian', IncidentManager::class)->name('incident-reports');
 
     // E-Cuti (Manajemen Cuti)
     Route::get('/cuti', LeaveManager::class)->name('cuti');

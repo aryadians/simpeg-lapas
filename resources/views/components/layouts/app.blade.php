@@ -6,6 +6,7 @@
     <title>{{ $title ?? 'SIMPEG Lapas' }}</title>
     
     {{-- CDN Libraries --}}
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -98,6 +99,12 @@
                         <a href="/laporan" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('laporan') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
                             <span class="text-lg group-hover:scale-110 transition-transform">📋</span>
                             <span class="whitespace-nowrap">Laporan</span>
+                        </a>
+
+                        {{-- Laporan Kejadian --}}
+                        <a href="{{ route('incident-reports') }}" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('incident-reports') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
+                            <span class="text-lg group-hover:scale-110 transition-transform">📝</span>
+                            <span class="whitespace-nowrap">Laporan Kejadian</span>
                         </a>
 
                         {{-- 5. Rekap Absen --}}

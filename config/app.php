@@ -123,4 +123,17 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Office Location Coordinates
+    |--------------------------------------------------------------------------
+    |
+    | These values are the latitude and longitude of the office, used for
+    | geofencing features in the attendance system.
+    |
+    */
+
+    'office_latitude' => env('OFFICE_LATITUDE', -6.2087634),
+    'office_longitude' => env('OFFICE_LONGITUDE', 106.845599),
+
 ];

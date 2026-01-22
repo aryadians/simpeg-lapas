@@ -13,6 +13,7 @@ class Logbook extends Component
 {
     public $wbp_count, $description, $is_urgent = false;
     public $shift_name;
+    public $showForm = false;
 
     public function mount()
     {
@@ -20,6 +21,17 @@ class Logbook extends Component
         if ($hour >= 7 && $hour < 13) $this->shift_name = 'Regu Pagi';
         elseif ($hour >= 13 && $hour < 19) $this->shift_name = 'Regu Siang';
         else $this->shift_name = 'Regu Malam';
+    }
+
+    public function showCreateForm()
+    {
+        $this->showForm = true;
+    }
+
+    public function cancel()
+    {
+        $this->reset(['wbp_count', 'description', 'is_urgent']);
+        $this->showForm = false;
     }
 
     public function submitLog()
@@ -39,6 +51,7 @@ class Logbook extends Component
         ]);
 
         $this->reset(['wbp_count', 'description', 'is_urgent']);
+        $this->showForm = false;
         $this->dispatch('flash-message', text: 'Laporan aplusan berhasil dikirim!');
     }
 
