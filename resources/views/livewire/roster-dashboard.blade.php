@@ -50,7 +50,7 @@
                 <livewire:attendance-widget :todayRoster="$todaysRosterForUser" />
             </div>
             <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 animate-pop-in" style="animation-delay: 100ms;">
-                <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Komposisi Shift</h3>
+                <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Komposisi Shift (Bulan Ini)</h3>
                 <div class="h-48 w-full flex justify-center items-center">
                     <canvas id="shiftChart"></canvas>
                 </div>
@@ -58,6 +58,17 @@
                     <div class="flex items-center text-sm text-gray-600"><span class="w-3 h-3 rounded-full bg-yellow-400 mr-3"></span> Regu Pagi</div>
                     <div class="flex items-center text-sm text-gray-600"><span class="w-3 h-3 rounded-full bg-blue-400 mr-3"></span> Regu Siang</div>
                     <div class="flex items-center text-sm text-gray-600"><span class="w-3 h-3 rounded-full bg-slate-800 mr-3"></span> Regu Malam</div>
+                </div>
+            </div>
+             <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 animate-pop-in" style="animation-delay: 200ms;">
+                <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Statistik Kehadiran (Hari Ini)</h3>
+                <div class="h-48 w-full flex justify-center items-center">
+                    <canvas id="attendanceChart"></canvas>
+                </div>
+                 <div class="mt-4 space-y-2">
+                    <div class="flex items-center text-sm text-gray-600"><span class="w-3 h-3 rounded-full bg-emerald-500 mr-3"></span> Hadir</div>
+                    <div class="flex items-center text-sm text-gray-600"><span class="w-3 h-3 rounded-full bg-amber-500 mr-3"></span> Cuti / Izin</div>
+                    <div class="flex items-center text-sm text-gray-600"><span class="w-3 h-3 rounded-full bg-rose-500 mr-3"></span> Tanpa Keterangan</div>
                 </div>
             </div>
         </div>
@@ -75,13 +86,31 @@
                         <div class="h-12 w-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl">👮‍♂️</div>
                     </div>
                 </div>
-                <div class="bg-gradient-to-br from-purple-500 to-fuchsia-600 text-white rounded-2xl p-6 shadow-xl shadow-purple-500/30 transition-all duration-300 transform-gpu hover:scale-105 hover:[transform:rotateY(10deg)] animate-pop-in" style="animation-delay: 300ms;">
+                <div class="bg-gradient-to-br from-emerald-500 to-green-600 text-white rounded-2xl p-6 shadow-xl shadow-emerald-500/30 transition-all duration-300 transform-gpu hover:scale-105 hover:[transform:rotateY(10deg)] animate-pop-in" style="animation-delay: 300ms;">
                     <div class="flex justify-between items-start">
                         <div>
-                            <p class="font-medium opacity-80">Dinas Malam Ini</p>
-                            <h3 class="text-4xl font-extrabold mt-1">{{ $todayStats['dinas_malam'] ?? 0 }}</h3>
+                            <p class="font-medium opacity-80">Hadir Hari Ini</p>
+                            <h3 class="text-4xl font-extrabold mt-1">{{ $todayStats['hadir_hari_ini'] ?? 0 }}</h3>
                         </div>
-                         <div class="h-12 w-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl">🌙</div>
+                         <div class="h-12 w-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl">👍</div>
+                    </div>
+                </div>
+                 <div class="bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-2xl p-6 shadow-xl shadow-amber-500/30 transition-all duration-300 transform-gpu hover:scale-105 hover:[transform:rotateY(-10deg)] animate-pop-in" style="animation-delay: 400ms;">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-medium opacity-80">Pegawai Cuti</p>
+                            <h3 class="text-4xl font-extrabold mt-1">{{ $todayStats['cuti_hari_ini'] ?? 0 }}</h3>
+                        </div>
+                         <div class="h-12 w-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl">🏖️</div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-rose-500 to-red-600 text-white rounded-2xl p-6 shadow-xl shadow-rose-500/30 transition-all duration-300 transform-gpu hover:scale-105 hover:[transform:rotateY(10deg)] animate-pop-in" style="animation-delay: 500ms;">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-medium opacity-80">Tanpa Keterangan</p>
+                            <h3 class="text-4xl font-extrabold mt-1">{{ $todayStats['alpha_hari_ini'] ?? 0 }}</h3>
+                        </div>
+                         <div class="h-12 w-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl">❓</div>
                     </div>
                 </div>
             </div>
@@ -240,58 +269,84 @@
 @push('scripts')
 <script>
     document.addEventListener('livewire:init', () => {
-        const chartElement = document.getElementById('shiftChart');
-        if (!chartElement) return;
-
-        const renderChart = () => {
-            const stats = @json($shiftStats);
-            
-            if (window.myShiftChart instanceof Chart) {
-                window.myShiftChart.destroy();
-            }
-            
-            window.myShiftChart = new Chart(chartElement, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(stats),
-                    datasets: [{
-                        data: Object.values(stats),
-                        backgroundColor: [
-                            'rgba(251, 191, 36, 0.8)', // Kuning Pagi
-                            'rgba(96, 165, 250, 0.8)', // Biru Siang
-                            'rgba(30, 41, 59, 0.8)',   // Gelap Malam
-                        ],
-                        borderColor: [
-                            '#FBBF24',
-                            '#60A5FA',
-                            '#1E293B',
-                        ],
-                        borderWidth: 2,
-                        hoverOffset: 12,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '75%', 
-                    plugins: {
-                        legend: { display: false },
-                    },
-                    animation: {
-                        animateScale: true,
-                        animateRotate: true,
-                        duration: 800,
-                        easing: 'easeInOutQuart'
-                    }
+        // Chart DOUGHNUT untuk Komposisi Shift
+        const shiftChartElement = document.getElementById('shiftChart');
+        if (shiftChartElement) {
+            const renderShiftChart = () => {
+                const stats = @json($shiftStats);
+                
+                if (window.myShiftChart instanceof Chart) {
+                    window.myShiftChart.destroy();
                 }
-            });
+                
+                window.myShiftChart = new Chart(shiftChartElement, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(stats),
+                        datasets: [{
+                            data: Object.values(stats),
+                            backgroundColor: [
+                                'rgba(251, 191, 36, 0.8)', // Kuning Pagi
+                                'rgba(96, 165, 250, 0.8)', // Biru Siang
+                                'rgba(30, 41, 59, 0.8)',   // Gelap Malam
+                            ],
+                            borderColor: ['#FBBF24', '#60A5FA', '#1E293B'],
+                            borderWidth: 2,
+                            hoverOffset: 12,
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, cutout: '75%',
+                        plugins: { legend: { display: false } },
+                        animation: { animateScale: true, animateRotate: true, duration: 800, easing: 'easeInOutQuart' }
+                    }
+                });
+            }
+            renderShiftChart();
+            @this.on('roster-updated', () => setTimeout(renderShiftChart, 200));
         }
-        
-        renderChart();
 
-        @this.on('roster-updated', () => {
-            setTimeout(renderChart, 200);
-        });
+        // Chart DOUGHNUT untuk Statistik Kehadiran Hari Ini
+        const attendanceChartElement = document.getElementById('attendanceChart');
+        if (attendanceChartElement) {
+            const renderAttendanceChart = () => {
+                const stats = @json($todayStats);
+                const chartData = {
+                    'Hadir': stats.hadir_hari_ini,
+                    'Cuti': stats.cuti_hari_ini,
+                    'Alpha': stats.alpha_hari_ini,
+                };
+
+                if (window.myAttendanceChart instanceof Chart) {
+                    window.myAttendanceChart.destroy();
+                }
+
+                window.myAttendanceChart = new Chart(attendanceChartElement, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(chartData),
+                        datasets: [{
+                            data: Object.values(chartData),
+                            backgroundColor: [
+                                'rgba(16, 185, 129, 0.8)',  // Emerald
+                                'rgba(245, 158, 11, 0.8)',   // Amber
+                                'rgba(244, 63, 94, 0.8)',    // Rose
+                            ],
+                            borderColor: ['#10B981', '#F59E0B', '#F43F5E'],
+                            borderWidth: 2,
+                            hoverOffset: 12,
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, cutout: '75%',
+                        plugins: { legend: { display: false } },
+                        animation: { animateScale: true, animateRotate: true, duration: 800, easing: 'easeInOutQuart' }
+                    }
+                });
+            }
+            renderAttendanceChart();
+            @this.on('roster-updated', () => setTimeout(renderAttendanceChart, 200));
+        }
     });
 </script>
 @endpush

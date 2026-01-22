@@ -8,6 +8,7 @@ use App\Models\Roster;
 use App\Models\Shift;
 use App\Models\User;
 use App\Models\LeaveRequest;
+use App\Models\Attendance;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -265,13 +266,15 @@ class RosterDashboard extends Component
     // ==========================================
     public function render()
     {
+        $today = Carbon::today();
+        
         // 1. Data Jadwal Kalender
         $rosters = Roster::with(['user', 'shift'])
             ->whereIn('date', $this->dateRange)
             ->get()
             ->groupBy('date');
 
-        // 2. Statistik Grafik (Mengikuti Bulan Kalender)
+        // 2. Statistik Grafik Shift (Mengikuti Bulan Kalender)
         $shiftStats = Roster::whereMonth('date', $this->startDate->month)
             ->whereYear('date', $this->startDate->year)
             ->with('shift')
@@ -280,18 +283,31 @@ class RosterDashboard extends Component
             ->map->count();
 
         // 3. Statistik Kartu (Realtime Hari Ini)
+        $totalPegawai = User::count();
+        $hadirHariIni = Attendance::whereDate('date', $today)
+            ->whereIn('status', ['hadir', 'terlambat'])
+            ->distinct('user_id')
+            ->count();
+            
+        $cutiHariIni = LeaveRequest::where('status', 'approved')
+            ->where('start_date', '<=', $today)
+            ->where('end_date', '>=', $today)
+            ->distinct('user_id')
+            ->count();
+
         $todayStats = [
-            'total_pegawai' => User::count(),
-            'dinas_malam' => Roster::whereDate('date', Carbon::today())
+            'total_pegawai' => $totalPegawai,
+            'dinas_malam' => Roster::whereDate('date', $today)
                 ->whereHas('shift', fn($q) => $q->where('is_overnight', true))
                 ->count(),
-            'off_duty' => User::count() - Roster::whereDate('date', Carbon::today())->count()
+            'hadir_hari_ini' => $hadirHariIni,
+            'cuti_hari_ini' => $cutiHariIni,
+            'alpha_hari_ini' => $totalPegawai - $hadirHariIni - $cutiHariIni,
         ];
-
+        
         // 4. Data Untuk Attendance Widget
         $user = Auth::user();
         $now = Carbon::now();
-        $today = Carbon::today();
         $todaysRosterForUser = null;
 
         $roster = Roster::where('user_id', $user->id)
