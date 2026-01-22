@@ -4,7 +4,10 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\LeaveRequest;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\LeaveRequestSubmitted;
 use Livewire\Attributes\On;
 
 class LeaveManager extends Component
@@ -43,13 +46,26 @@ class LeaveManager extends Component
             'reason'     => 'required|string|max:255',
         ]);
 
-        LeaveRequest::create([
+        $leaveRequest = LeaveRequest::create([
             'user_id'    => Auth::id(),
             'start_date' => $this->start_date,
             'end_date'   => $this->end_date,
             'reason'     => $this->reason,
             'status'     => 'pending'
         ]);
+
+        // Kirim email notifikasi ke semua admin
+        try {
+            $admins = User::where('role', 'admin')->get();
+            foreach ($admins as $admin) {
+                if($admin->email) {
+                    Mail::to($admin->email)->send(new LeaveRequestSubmitted($leaveRequest));
+                }
+            }
+        } catch (\Exception $e) {
+            // Jika email gagal, jangan hentikan proses. Cukup catat error jika perlu.
+            // Log::error('Gagal mengirim email notifikasi cuti: ' . $e->getMessage());
+        }
 
         $this->reset(['start_date', 'end_date', 'reason']);
         $this->dispatch('flash-message', text: 'Pengajuan cuti Anda telah berhasil dikirim!');
