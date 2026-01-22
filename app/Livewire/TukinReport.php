@@ -113,6 +113,63 @@ class TukinReport extends Component
         }
     }
 
+    public function exportCsv()
+    {
+        $fileName = 'laporan-tukin-' . $this->selectedMonth . '.csv';
+
+        // Ensure the report data is generated if it's somehow empty
+        if (empty($this->reportData)) {
+            $this->generateReport();
+        }
+
+        $data = $this->reportData;
+
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $callback = function() use ($data) {
+            $file = fopen('php://output', 'w');
+            
+            // Add BOM for UTF-8 compatibility in Excel
+            fputs($file, "\xEF\xBB\xBF");
+
+            // Add Header Row
+            fputcsv($file, [
+                'NIP', 
+                'Nama Pegawai', 
+                'Jabatan', 
+                'Grade', 
+                'Tukin Awal (Rp)', 
+                'Total Potongan (%)', 
+                'Potongan (Rp)', 
+                'Tukin Diterima (Rp)'
+            ]);
+
+            // Add Data Rows
+            foreach ($data as $userReport) {
+                fputcsv($file, [
+                    "'" . $userReport['nip'], // Prepend with ' to treat as text in Excel
+                    $userReport['name'],
+                    $userReport['jabatan'],
+                    $userReport['grade'],
+                    $userReport['tukin_nominal'],
+                    $userReport['total_deduction_percentage'],
+                    $userReport['total_deduction_amount'],
+                    $userReport['final_tukin'],
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     public function render()
     {
         return view('livewire.tukin-report')->layout('components.layouts.app');
