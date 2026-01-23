@@ -1,9 +1,13 @@
 <div class="p-6 bg-gray-50 min-h-screen font-sans">
     <div class="max-w-7xl mx-auto">
         {{-- Header --}}
-        <header class="mb-8 animate__animated animate__fadeInDown">
-            <h1 class="text-4xl font-extrabold text-gray-800 tracking-tight">Admin Dashboard</h1>
-            <p class="text-gray-500 mt-2">Ringkasan status operasional sistem.</p>
+        <header class="mb-6 animate__animated animate__fadeInDown">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight">Admin Dashboard</h1>
+                    <p class="text-gray-500 mt-1">Ringkasan status operasional sistem.</p>
+                </div>
+            </div>
         </header>
 
         {{-- Grid of Stat Cards --}}
