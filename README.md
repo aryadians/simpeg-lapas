@@ -9,14 +9,8 @@
     <img alt="PHP" src="https://img.shields.io/badge/PHP-^8.2-777BB4.svg?style=for-the-badge&logo=php"/>
     <img alt="Laravel" src="https://img.shields.io/badge/Laravel-^12.0-FF2D20.svg?style=for-the-badge&logo=laravel"/>
     <img alt="Livewire" src="https://img.shields.io/badge/Livewire-^4.0-4E56A6.svg?style=for-the-badge&logo=livewire"/>
-    <img alt="Alpine.js" src="https://img.shields.io/badge/Alpine.js-8BC0D0.svg?style=for-the-badge&logo=alpine.js"/>
     <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-38B2AC.svg?style=for-the-badge&logo=tailwind-css"/>
-</p>
-
-<p>
-    <img alt="License" src="https://img.shields.io/github/license/laravel/laravel?style=flat-square&color=green"/>
-    <img alt="Status" src="https://img.shields.io/badge/Status-Development-blue.svg?style=flat-square"/>
-    <img alt="Maintenance" src="https://img.shields.io/badge/Maintained%3F-yes-brightgreen.svg?style=flat-square"/>
+    <img alt="License" src="https://img.shields.io/github/license/aryadians/simpeg-lapas?style=for-the-badge&color=green"/>
 </p>
 
 </div>
@@ -27,12 +21,14 @@
 
 ## ✨ Fitur Utama
 
+- **🚀 Dashboard Admin:** Dasbor khusus untuk admin yang menampilkan ringkasan statistik vital dari seluruh sistem, seperti pegawai yang bertugas, pengajuan cuti, laporan kejadian, dan inventaris.
 - **👤 Manajemen Pegawai:** Pengelolaan data master pegawai, termasuk informasi pribadi, jabatan, dan grade tukin.
 - **🗓️ Penjadwalan Dinas:** Pembuatan jadwal dinas (roster) bulanan secara otomatis dengan algoritma yang adil.
 - **📍 Absensi Cerdas (Geofencing & Selfie):**
-  - **Verifikasi Lokasi:** Mengunci tombol absen agar hanya aktif jika pegawai berada dalam radius yang ditentukan (contoh: 100m) dari titik koordinat lapas.
+  - **Verifikasi Lokasi:** Mengunci tombol absen agar hanya aktif jika pegawai berada dalam radius yang ditentukan dari titik koordinat lapas.
   - **Bukti Kehadiran:** Mewajibkan pegawai untuk mengambil foto selfie saat melakukan absen masuk sebagai bukti kehadiran fisik.
-  - **Deteksi Shift:** Secara otomatis mengenali jadwal shift pegawai (pagi, siang, malam) dan menangani absensi yang melintasi hari.
+  - **Deteksi Shift:** Secara otomatis mengenali jadwal shift pegawai dan menangani absensi yang melintasi hari.
+- **📦 Manajemen Inventaris:** Pencatatan dan pelacakan barang inventaris lapas, termasuk riwayat peminjaman dan pengembalian barang.
 - **🌴 Manajemen Cuti:** Proses pengajuan dan persetujuan cuti secara digital dan terintegrasi dengan sistem penjadwalan.
 - **📓 Buku Laporan Jaga:** Digitalisasi laporan aplusan regu jaga, mencatat inventaris, jumlah penghuni, dan kejadian penting.
 - **💥 Laporan Insiden:** Fitur khusus untuk mencatat dan mengelola laporan kejadian tak terduga selama jam dinas.
@@ -114,10 +110,10 @@ Buka browser Anda dan akses `http://127.0.0.1:8000`.
 
 ## 📸 Tangkapan Layar (Placeholder)
 
-| Dashboard | Absensi dengan Selfie |
+| Admin Dashboard | Jadwal Dinas |
 | :---: | :---: |
-| ![Dashboard](https://placehold.co/600x400/e2e8f0/475569?text=Dashboard) | ![Absensi](https://placehold.co/600x400/e2e8f0/475569?text=Absensi+Selfie) |
+| ![Admin Dashboard](https://placehold.co/600x400/e2e8f0/475569?text=Admin+Dashboard) | ![Jadwal](https://placehold.co/600x400/e2e8f0/475569?text=Jadwal+Dinas) |
 
-| Laporan Tukin | Jadwal Dinas |
+| Absensi dengan Selfie | Laporan Tukin |
 | :---: | :---: |
-| ![Tukin](https://placehold.co/600x400/e2e8f0/475569?text=Laporan+Tukin) | ![Jadwal](https://placehold.co/600x400/e2e8f0/475569?text=Jadwal+Dinas) |
+| ![Absensi](https://placehold.co/600x400/e2e8f0/475569?text=Absensi+Selfie) | ![Tukin](https://placehold.co/600x400/e2e8f0/475569?text=Laporan+Tukin) |
