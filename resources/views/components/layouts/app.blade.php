@@ -105,6 +105,10 @@
                             <span class="whitespace-nowrap">Rekap</span>
                         </a>
                         @if(auth()->check() && strtolower(trim(auth()->user()->role)) === 'admin')
+                        <a href="{{ route('admin.dashboard') }}" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
+                            <span class="text-lg group-hover:scale-110 transition-transform">🚀</span>
+                            <span class="whitespace-nowrap">Dashboard</span>
+                        </a>
                         <a href="{{ route('tukin.report') }}" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('tukin.*') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
                             <span class="text-lg group-hover:scale-110 transition-transform">💰</span>
                             <span class="whitespace-nowrap">Tukin</span>
@@ -188,6 +192,7 @@
                 <a @click="open = false" href="{{ route('incident-reports') }}" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->routeIs('incident-reports') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">📝 <span class="flex-1">Laporan Kejadian</span></a>
                 <a @click="open = false" href="/rekap-absensi" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->routeIs('rekap') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">📊 <span class="flex-1">Rekap</span></a>
                 @if(auth()->check() && strtolower(trim(auth()->user()->role)) === 'admin')
+                    <a @click="open = false" href="{{ route('admin.dashboard') }}" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">🚀 <span class="flex-1">Dashboard</span></a>
                     <a @click="open = false" href="{{ route('tukin.report') }}" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->routeIs('tukin.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">💰 <span class="flex-1">Tukin</span></a>
                     <a @click="open = false" href="{{ route('post.assignment') }}" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->routeIs('post.assignment') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">📍 <span class="flex-1">Plotting Pos</span></a>
                 @endif

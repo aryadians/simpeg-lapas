@@ -13,6 +13,7 @@ use App\Livewire\TukinReport;
 use App\Http\Controllers\RosterReportController;
 use App\Livewire\IncidentManager;
 use App\Livewire\InventoryManager;
+use App\Livewire\AdminDashboard;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +31,9 @@ Route::middleware('auth')->group(function () {
 
     // Dashboard Utama (Jadwal & Absen)
     Route::get('/', RosterDashboard::class)->name('dashboard');
+
+    // Admin Dashboard
+    Route::get('/admin/dashboard', AdminDashboard::class)->name('admin.dashboard');
 
     // Manajemen Pegawai
     Route::get('/pegawai', EmployeeManager::class)->name('pegawai');

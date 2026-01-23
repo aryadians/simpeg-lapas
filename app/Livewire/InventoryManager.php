@@ -129,29 +129,27 @@ class InventoryManager extends Component
     #[On('checkin-confirmed')]
     public function checkin($inventoryId)
     {
-        session()->flash('message', 'DEBUG: Check-in method called with ID: ' . $inventoryId);
+        $inventory = Inventory::find($inventoryId);
 
-        // $inventory = Inventory::find($inventoryId);
+        if ($inventory) {
+            InventoryLog::create([
+                'inventory_id' => $inventory->id,
+                'user_id' => $inventory->current_holder_id,
+                'action' => 'checked_in',
+                'action_at' => now(),
+                'notes' => 'Dikembalikan oleh pemegang terakhir.',
+            ]);
 
-        // if ($inventory) {
-        //     InventoryLog::create([
-        //         'inventory_id' => $inventory->id,
-        //         'user_id' => $inventory->current_holder_id,
-        //         'action' => 'checked_in',
-        //         'action_at' => now(),
-        //         'notes' => 'Dikembalikan oleh pemegang terakhir.',
-        //     ]);
+            $inventory->update([
+                'status' => 'available',
+                'current_holder_id' => null,
+                'checked_out_at' => null,
+                'due_at' => null,
+            ]);
 
-        //     $inventory->update([
-        //         'status' => 'available',
-        //         'current_holder_id' => null,
-        //         'checked_out_at' => null,
-        //         'due_at' => null,
-        //     ]);
-
-        //     session()->flash('message', 'Item telah dikembalikan.');
-        //     $this->dispatch('$refresh');
-        // }
+            session()->flash('message', 'Item telah dikembalikan.');
+            $this->dispatch('$refresh');
+        }
     }
 
     public function confirmCheckin($inventoryId)
