@@ -57,9 +57,9 @@
     {{-- ========================================= --}}
     {{-- NAVBAR BARU (FIX RAPI & SINGLE LINE)      --}}
     {{-- ========================================= --}}
-    <nav class="bg-white/90 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm transition-all duration-300">
+        <nav x-data="{ open: false }" class="bg-white/90 backdrop-blur-md border-b border-gray-200 sticky top-0 z-40 shadow-sm transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-20"> {{-- Tinggi navbar h-20 agar lega --}}
+            <div class="flex justify-between h-20">
                 
                 {{-- KIRI: Logo & Menu --}}
                 <div class="flex items-center gap-8 overflow-x-auto no-scrollbar">
@@ -75,45 +75,35 @@
                     </div>
 
                     {{-- Menu Navigasi (Desktop) --}}
-                    <div class="hidden lg:flex items-center space-x-1"> 
-                        
-                        {{-- 1. Jadwal --}}
+                    <div class="hidden lg:flex items-center space-x-1">
                         <a href="/" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->is('/') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
                             <span class="text-lg group-hover:scale-110 transition-transform">🗓️</span>
                             <span class="whitespace-nowrap">Jadwal</span>
                         </a>
-
-                        {{-- 2. Data Pegawai --}}
                         <a href="/pegawai" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->is('pegawai*') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
                             <span class="text-lg group-hover:scale-110 transition-transform">👥</span>
                             <span class="whitespace-nowrap">Pegawai</span>
                         </a>
-
-                        {{-- 3. E-Cuti --}}
+                        <a href="/inventaris" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->is('inventaris*') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
+                            <span class="text-lg group-hover:scale-110 transition-transform">📦</span>
+                            <span class="whitespace-nowrap">Inventaris</span>
+                        </a>
                         <a href="/cuti" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->is('cuti*') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
                             <span class="text-lg group-hover:scale-110 transition-transform">🏖️</span>
                             <span class="whitespace-nowrap">E-Cuti</span>
                         </a>
-
-                        {{-- 4. Laporan Jaga --}}
                         <a href="/laporan" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('laporan') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
                             <span class="text-lg group-hover:scale-110 transition-transform">📋</span>
                             <span class="whitespace-nowrap">Laporan</span>
                         </a>
-
-                        {{-- Laporan Kejadian --}}
                         <a href="{{ route('incident-reports') }}" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('incident-reports') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
                             <span class="text-lg group-hover:scale-110 transition-transform">📝</span>
                             <span class="whitespace-nowrap">Laporan Kejadian</span>
                         </a>
-
-                        {{-- 5. Rekap Absen --}}
                         <a href="/rekap-absensi" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('rekap') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
                             <span class="text-lg group-hover:scale-110 transition-transform">📊</span>
                             <span class="whitespace-nowrap">Rekap</span>
                         </a>
-
-                        {{-- 6. Tukin (Admin Only) --}}
                         @if(auth()->check() && strtolower(trim(auth()->user()->role)) === 'admin')
                         <a href="{{ route('tukin.report') }}" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('tukin.*') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
                             <span class="text-lg group-hover:scale-110 transition-transform">💰</span>
@@ -124,29 +114,91 @@
                             <span class="whitespace-nowrap">Plotting Pos</span>
                         </a>
                         @endif
-
                     </div>
                 </div>
 
-                {{-- KANAN: User Profile & Logout --}}
-                <div class="flex items-center gap-4">
+                {{-- KANAN: User Profile & Logout + Hamburger --}}
+                <div class="flex items-center gap-2">
+                    <div class="hidden md:flex items-center gap-4">
+                        {{-- Info User --}}
+                        <div class="flex flex-col items-end mr-2">
+                            <span class="text-sm font-bold text-gray-900">{{ auth()->user()->name ?? 'Guest' }}</span>
+                            <span class="text-[10px] uppercase tracking-wider text-indigo-600 font-bold bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">
+                                {{ auth()->user()->role ?? '-' }}
+                            </span>
+                        </div>
+                        {{-- Tombol Logout --}}
+                        <a href="/logout" class="h-10 w-10 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all shadow-sm border border-red-100 group" title="Logout">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                        </a>
+                    </div>
                     
-                    {{-- Info User --}}
-                    <div class="hidden md:flex flex-col items-end mr-2">
-                        <span class="text-sm font-bold text-gray-900">{{ auth()->user()->name ?? 'Guest' }}</span>
-                        <span class="text-[10px] uppercase tracking-wider text-indigo-600 font-bold bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">
-                            {{ auth()->user()->role ?? '-' }}
-                        </span>
+                    {{-- Tombol Hamburger (Mobile) --}}
+                    <div class="lg:hidden">
+                        <button @click="open = !open" class="h-12 w-12 rounded-xl bg-white hover:bg-indigo-50 text-indigo-600 border-2 border-indigo-100 shadow-sm transition-all duration-300 transform hover:scale-110 active:scale-95 flex items-center justify-center">
+                            <svg x-show="!open" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+                            <svg x-show="open" x-cloak class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
                     </div>
-
-                    {{-- Tombol Logout --}}
-                    <a href="/logout" class="h-10 w-10 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all shadow-sm border border-red-100 group" title="Logout">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                    </a>
-
                 </div>
+            </div>
+        </div>
+
+        {{-- Mobile Menu Backdrop --}}
+        <div x-show="open" 
+             x-transition:enter="transition-opacity ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             x-cloak
+             class="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm lg:hidden">
+        </div>
+
+        {{-- Mobile Menu Panel --}}
+        <div x-show="open" 
+             @click.away="open = false"
+             x-transition:enter="transition-transform ease-out duration-300"
+             x-transition:enter-start="translate-x-full"
+             x-transition:enter-end="translate-x-0"
+             x-transition:leave="transition-transform ease-in duration-200"
+             x-transition:leave-start="translate-x-0"
+             x-transition:leave-end="translate-x-full"
+             x-cloak
+             class="fixed top-0 right-0 bottom-0 z-50 w-full max-w-sm bg-white shadow-2xl p-6 lg:hidden flex flex-col">
+            
+            {{-- Header Menu Mobile --}}
+            <div class="flex justify-between items-center pb-6 border-b">
+                <span class="text-xl font-extrabold text-gray-800">Menu</span>
+                <button @click="open = false" class="h-10 w-10 rounded-full flex items-center justify-center bg-gray-100 text-gray-500 hover:bg-red-100 hover:text-red-500 transition-all">
+                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+
+            {{-- Nav Links --}}
+            <div class="mt-6 flex-grow space-y-2">
+                <a @click="open = false" href="/" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->is('/') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">🗓️ <span class="flex-1">Jadwal</span></a>
+                <a @click="open = false" href="/pegawai" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->is('pegawai*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">👥 <span class="flex-1">Pegawai</span></a>
+                <a @click="open = false" href="/inventaris" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->is('inventaris*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">📦 <span class="flex-1">Inventaris</span></a>
+                <a @click="open = false" href="/cuti" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->is('cuti*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">🏖️ <span class="flex-1">E-Cuti</span></a>
+                <a @click="open = false" href="/laporan" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->routeIs('laporan') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">📋 <span class="flex-1">Laporan</span></a>
+                <a @click="open = false" href="{{ route('incident-reports') }}" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->routeIs('incident-reports') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">📝 <span class="flex-1">Laporan Kejadian</span></a>
+                <a @click="open = false" href="/rekap-absensi" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->routeIs('rekap') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">📊 <span class="flex-1">Rekap</span></a>
+                @if(auth()->check() && strtolower(trim(auth()->user()->role)) === 'admin')
+                    <a @click="open = false" href="{{ route('tukin.report') }}" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->routeIs('tukin.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">💰 <span class="flex-1">Tukin</span></a>
+                    <a @click="open = false" href="{{ route('post.assignment') }}" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->routeIs('post.assignment') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">📍 <span class="flex-1">Plotting Pos</span></a>
+                @endif
+            </div>
+
+            {{-- Footer Menu Mobile --}}
+            <div class="mt-6 pt-6 border-t">
+                <a href="/logout" class="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl text-lg font-bold bg-red-50 text-red-600 hover:bg-red-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                    <span>Logout</span>
+                </a>
             </div>
         </div>
     </nav>

@@ -12,6 +12,7 @@ use App\Livewire\UserProfile;
 use App\Livewire\TukinReport;
 use App\Http\Controllers\RosterReportController;
 use App\Livewire\IncidentManager;
+use App\Livewire\InventoryManager;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,6 +33,9 @@ Route::middleware('auth')->group(function () {
 
     // Manajemen Pegawai
     Route::get('/pegawai', EmployeeManager::class)->name('pegawai');
+
+    // Manajemen Inventaris
+    Route::get('/inventaris', InventoryManager::class)->name('inventaris');
 
     // Laporan Kejadian Internal
     Route::get('/laporan-kejadian', IncidentManager::class)->name('incident-reports');

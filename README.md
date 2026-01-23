@@ -63,7 +63,7 @@ Pastikan lingkungan lokal Anda memenuhi prasyarat berikut:
 
 ### 1. Clone Repositori
 ```bash
-git clone <URL_REPOSITORI_ANDA>
+git clone https://github.com/aryadians/simpeg-lapas
 cd simpeg-lapas
 ```
 

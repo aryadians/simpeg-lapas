@@ -103,11 +103,17 @@
 
     <!-- Selfie Modal -->
     @if($showSelfieModal)
-    <div class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+    <div x-data="{ show: @entangle('showSelfieModal') }" x-show="show"
+        x-transition:enter="ease-out duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
         <div 
             class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto"
             @click.away="$wire.cancelClockIn()"
-            wire:ignore.self
         >
             <div class="p-6 border-b border-gray-100">
                 <h3 class="text-lg font-bold text-gray-900">Ambil Selfie</h3>
