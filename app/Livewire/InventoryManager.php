@@ -71,6 +71,16 @@ class InventoryManager extends Component
 
         $this->closeModal();
         $this->resetCreateForm();
+        $this->dispatch('$refresh');
+    }
+
+    public function edit(Inventory $inventory)
+    {
+        $this->inventory_id = $inventory->id;
+        $this->name = $inventory->name;
+        $this->description = $inventory->description;
+        $this->serial_number = $inventory->serial_number;
+        $this->openModal();
     }
 
     public function openCheckoutModal(Inventory $inventory)
@@ -113,26 +123,45 @@ class InventoryManager extends Component
 
         session()->flash('message', 'Item berhasil dipinjamkan.');
         $this->closeCheckoutModal();
+        $this->dispatch('$refresh');
     }
 
-    public function checkin(Inventory $inventory)
+    #[On('checkin-confirmed')]
+    public function checkin($inventoryId)
     {
-        InventoryLog::create([
-            'inventory_id' => $inventory->id,
-            'user_id' => $inventory->current_holder_id,
-            'action' => 'checked_in',
-            'action_at' => now(),
-            'notes' => 'Dikembalikan oleh pemegang terakhir.',
-        ]);
+        session()->flash('message', 'DEBUG: Check-in method called with ID: ' . $inventoryId);
 
-        $inventory->update([
-            'status' => 'available',
-            'current_holder_id' => null,
-            'checked_out_at' => null,
-            'due_at' => null,
-        ]);
+        // $inventory = Inventory::find($inventoryId);
 
-        session()->flash('message', 'Item telah dikembalikan.');
+        // if ($inventory) {
+        //     InventoryLog::create([
+        //         'inventory_id' => $inventory->id,
+        //         'user_id' => $inventory->current_holder_id,
+        //         'action' => 'checked_in',
+        //         'action_at' => now(),
+        //         'notes' => 'Dikembalikan oleh pemegang terakhir.',
+        //     ]);
+
+        //     $inventory->update([
+        //         'status' => 'available',
+        //         'current_holder_id' => null,
+        //         'checked_out_at' => null,
+        //         'due_at' => null,
+        //     ]);
+
+        //     session()->flash('message', 'Item telah dikembalikan.');
+        //     $this->dispatch('$refresh');
+        // }
+    }
+
+    public function confirmCheckin($inventoryId)
+    {
+        $this->dispatch('confirm-dialog', [
+            'title' => 'Anda Yakin?',
+            'text' => 'Anda akan mengembalikan item ini.',
+            'confirm_event' => 'checkin-confirmed',
+            'confirm_params' => ['inventoryId' => $inventoryId]
+        ]);
     }
 
     public function openHistoryModal(Inventory $inventory)

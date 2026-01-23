@@ -57,7 +57,7 @@
                                     @if ($item->status == 'available')
                                         <button wire:click="openCheckoutModal({{ $item->id }})" class="font-medium text-indigo-600 hover:underline">Pinjamkan</button>
                                     @elseif ($item->status == 'checked_out')
-                                        <button wire:click="checkin({{ $item->id }})" wire:confirm="Anda yakin ingin mengembalikan item ini?" class="font-medium text-green-600 hover:underline">Kembalikan</button>
+                                        <button wire:click="confirmCheckin({{ $item->id }})" class="font-medium text-green-600 hover:underline">Kembalikan</button>
                                     @endif
                                     <button wire:click="openHistoryModal({{ $item->id }})" class="font-medium text-gray-600 hover:underline">Riwayat</button>
                                 </td>
