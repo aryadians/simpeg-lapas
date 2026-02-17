@@ -22,6 +22,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        config(['app.name' => 'SIMPEG LAPAS']);
+
         // Overwrite config with database settings if table exists
         if (Schema::hasTable('settings')) {
             $settings = Setting::all();
