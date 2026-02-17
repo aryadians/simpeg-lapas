@@ -36,7 +36,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                     Manual
                 </button>
-                <button onclick="Livewire.dispatch('confirm-dialog', { title: 'Generate Baru?', text: 'Data bulan ini akan di-reset.', confirm_event: 'generate-schedule-confirmed', confirm_params: {} })"
+                <button @click="$dispatch('confirm-dialog', { title: 'Generate Baru?', text: 'Data bulan ini akan di-reset.', confirm_event: 'generate-schedule-confirmed', confirm_params: {} })"
                         class="h-11 px-6 rounded-2xl bg-black hover:bg-gray-900 text-white shadow-xl transition-all active:scale-95 flex items-center gap-2 font-black text-[10px] uppercase tracking-widest">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                     Auto Generate
@@ -58,14 +58,35 @@
             </div>
             
             <div class="bg-white rounded-3xl p-6 shadow-xl border border-gray-100 animate-pop-in" style="animation-delay: 100ms;">
-                <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-6 border-b border-gray-50 pb-3">Operational Load</h3>
+                <div class="flex items-center justify-between mb-6 border-b border-gray-50 pb-3">
+                    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Operational Load</h3>
+                    <div class="h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></div>
+                </div>
                 <div class="h-48 w-full flex justify-center items-center">
                     <canvas id="shiftChart"></canvas>
                 </div>
-                 <div class="mt-6 grid grid-cols-1 gap-2">
-                    <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-gray-500 bg-gray-50 p-2 rounded-xl"><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-yellow-400"></span> Pagi</span> <span>Regu 1</span></div>
-                    <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-gray-500 bg-gray-50 p-2 rounded-xl"><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-400"></span> Siang</span> <span>Regu 2</span></div>
-                    <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-gray-500 bg-gray-50 p-2 rounded-xl"><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-slate-800"></span> Malam</span> <span>Regu 3</span></div>
+                 <div class="mt-8 space-y-3">
+                    <div class="group flex items-center justify-between p-3 bg-gray-50 rounded-2xl border border-gray-100/50 hover:bg-white hover:shadow-md transition-all duration-300">
+                        <div class="flex items-center gap-3">
+                            <div class="h-8 w-8 rounded-xl bg-yellow-400/10 flex items-center justify-center text-yellow-600 font-black text-[10px]">AM</div>
+                            <span class="text-[10px] font-black text-gray-700 uppercase tracking-widest">Regu Pagi</span>
+                        </div>
+                        <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest bg-white px-2 py-1 rounded-lg border border-gray-100 shadow-sm">Sector 01</span>
+                    </div>
+                    <div class="group flex items-center justify-between p-3 bg-gray-50 rounded-2xl border border-gray-100/50 hover:bg-white hover:shadow-md transition-all duration-300">
+                        <div class="flex items-center gap-3">
+                            <div class="h-8 w-8 rounded-xl bg-blue-400/10 flex items-center justify-center text-blue-600 font-black text-[10px]">PM</div>
+                            <span class="text-[10px] font-black text-gray-700 uppercase tracking-widest">Regu Siang</span>
+                        </div>
+                        <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest bg-white px-2 py-1 rounded-lg border border-gray-100 shadow-sm">Sector 02</span>
+                    </div>
+                    <div class="group flex items-center justify-between p-3 bg-gray-50 rounded-2xl border border-gray-100/50 hover:bg-white hover:shadow-md transition-all duration-300">
+                        <div class="flex items-center gap-3">
+                            <div class="h-8 w-8 rounded-xl bg-slate-800/10 flex items-center justify-center text-slate-800 font-black text-[10px]">NT</div>
+                            <span class="text-[10px] font-black text-gray-700 uppercase tracking-widest">Regu Malam</span>
+                        </div>
+                        <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest bg-white px-2 py-1 rounded-lg border border-gray-100 shadow-sm">Sector 03</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -93,19 +114,19 @@
             </div>
 
             {{-- Jadwal Harian --}}
-            <div class="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 p-2 animate-fade-in-up" style="animation-delay: 400ms;">
-                <div class="flex gap-4 overflow-x-auto p-4 custom-scrollbar no-scrollbar">
+            <div class="bg-white rounded-[2rem] shadow-xl border border-gray-100 p-2 animate-fade-in-up" style="animation-delay: 400ms;">
+                <div class="flex gap-4 overflow-x-auto p-4 snap-x snap-mandatory no-scrollbar">
                     @forelse($dateRange as $date)
                         @php
                             $carbonDate = \Carbon\Carbon::parse($date);
                             $isToday = $carbonDate->isToday();
                         @endphp
-                        <div class="flex-shrink-0 w-72 bg-gray-50/50 rounded-[2rem] border-2 {{ $isToday ? 'border-indigo-500' : 'border-transparent' }} transition-all duration-300 overflow-hidden">
+                        <div class="flex-shrink-0 w-[85%] sm:w-72 bg-gray-50/50 rounded-[2rem] border-2 {{ $isToday ? 'border-indigo-500' : 'border-transparent' }} transition-all duration-300 overflow-hidden snap-center">
                             <div class="p-6 {{ $isToday ? 'bg-indigo-600 text-white' : 'bg-white text-gray-900 border-b border-gray-100' }}">
                                 <p class="text-[10px] font-black uppercase tracking-[0.3em] {{ $isToday ? 'text-indigo-200' : 'text-gray-400' }}">{{ $carbonDate->translatedFormat('l') }}</p>
                                 <p class="text-2xl font-black tracking-tighter mt-1">{{ $carbonDate->translatedFormat('d M') }}</p>
                             </div>
-                            <div class="p-4 space-y-3 h-[420px] overflow-y-auto no-scrollbar">
+                            <div class="p-4 space-y-3 h-[350px] md:h-[420px] overflow-y-auto no-scrollbar">
                                 @forelse($rosters[$date] ?? [] as $roster)
                                     <div wire:key="{{ $roster->id }}" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100/80 transition-all duration-300 hover:shadow-md hover:border-indigo-200 group relative">
                                         <div class="flex items-center gap-3">

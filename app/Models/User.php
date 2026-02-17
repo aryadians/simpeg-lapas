@@ -28,7 +28,9 @@ class User extends Authenticatable
         'jabatan',
         'grade',
         'role',
-        'tukin_nominal'
+        'tukin_nominal',
+        'two_factor_code',
+        'two_factor_expires_at'
     ];
 
     /**
@@ -51,6 +53,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'two_factor_expires_at' => 'datetime',
         ];
     }
 
@@ -65,6 +68,11 @@ class User extends Authenticatable
     /**
      * Get the rosters for the user.
      */
+    public function rosters()
+    {
+        return $this->hasMany(Roster::class);
+    }
+
     /**
      * Check if the user is online.
      */

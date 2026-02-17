@@ -2,63 +2,24 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{{ $title ?? config('app.name') }}</title>
     
-    {{-- CDN Libraries --}}
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {{-- Tailwind & CSS --}}
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="manifest" href="/manifest.json">
     
-    {{-- Custom Styles & Animations --}}
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-
-        /* Animation Keyframes */
-        @keyframes blob {
-            0% { transform: translate(0px, 0px) scale(1); }
-            33% { transform: translate(30px, -50px) scale(1.1); }
-            66% { transform: translate(-20px, 20px) scale(0.9); }
-            100% { transform: translate(0px, 0px) scale(1); }
-        }
-        .animate-blob { animation: blob 7s infinite; }
-        .animation-delay-2000 { animation-delay: 2s; }
-        .animate-fade-in-down { animation: fadeInDown 0.5s ease-out; }
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-pop-in { animation: popIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
-        @keyframes popIn {
-            0% { opacity: 0; transform: scale(0.5); }
-            70% { opacity: 1; transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        /* Global Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-
-        /* Selection Color */
-        ::selection {
-            background: #4f46e5;
-            color: white;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        [x-cloak] { display: none !important; }
+        @media (min-width: 1024px) {
+            ::-webkit-scrollbar { width: 6px; height: 6px; }
+            ::-webkit-scrollbar-track { background: #f1f5f9; }
+            ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         }
     </style>
 
@@ -67,9 +28,10 @@
             theme: {
                 extend: {
                     colors: {
-                        indigo: { 600: '#4f46e5', 50: '#eef2ff' },
-                        purple: { 600: '#9333ea' }
-                    }
+                        indigo: { 50: '#eef2ff', 100: '#e0e7ff', 600: '#4f46e5', 700: '#4338ca' },
+                        rose: { 500: '#f43f5e', 600: '#e11d48' }
+                    },
+                    borderRadius: { '3xl': '1.5rem', '4xl': '2rem' }
                 }
             }
         }
@@ -77,265 +39,98 @@
 </head>
 <body class="bg-gray-50 antialiased text-gray-800">
 
-    {{-- ========================================= --}}
-    {{-- NAVBAR BARU (FIX RAPI & SINGLE LINE)      --}}
-    {{-- ========================================= --}}
-        <nav x-data="{ open: false }" class="bg-white/90 backdrop-blur-md border-b border-gray-200 sticky top-0 z-40 shadow-sm transition-all duration-300">
+    <nav x-data="{ open: false }" class="bg-white/80 backdrop-blur-lg border-b border-gray-100 sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-20">
-                
-                {{-- KIRI: Logo & Menu --}}
-                <div class="flex items-center gap-8 overflow-x-auto no-scrollbar">
-                    
-                    {{-- Logo --}}
-                    <div class="shrink-0 flex items-center gap-3">
-                        <div class="h-10 w-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-500/30">
-                            {{ substr(config('app.name'), 0, 1) }}
-                        </div>
-                        <span class="text-2xl font-extrabold text-gray-800 tracking-tight hidden md:block uppercase">
-                            {{ config('app.name') }}
-                        </span>
+            <div class="flex justify-between h-16 md:h-20">
+                <div class="flex items-center gap-2 md:gap-4">
+                    <div class="h-10 w-10 md:h-12 md:w-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-500/30 shrink-0">
+                        {{ substr(config('app.name'), 0, 1) }}
                     </div>
-
-                    {{-- Menu Navigasi (Desktop) --}}
-                    <div class="hidden lg:flex items-center space-x-1">
-                        <a href="/" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->is('/') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
-                            <span class="text-lg group-hover:scale-110 transition-transform">🗓️</span>
-                            <span class="whitespace-nowrap">Jadwal</span>
-                        </a>
-                        <a href="/pegawai" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->is('pegawai*') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
-                            <span class="text-lg group-hover:scale-110 transition-transform">👥</span>
-                            <span class="whitespace-nowrap">Pegawai</span>
-                        </a>
-                        <a href="/inventaris" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->is('inventaris*') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
-                            <span class="text-lg group-hover:scale-110 transition-transform">📦</span>
-                            <span class="whitespace-nowrap">Inventaris</span>
-                        </a>
-                        <a href="/patroli" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->is('patroli*') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
-                            <span class="text-lg group-hover:scale-110 transition-transform">🛡️</span>
-                            <span class="whitespace-nowrap">Patroli</span>
-                        </a>
-                        <a href="/cuti" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->is('cuti*') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
-                            <span class="text-lg group-hover:scale-110 transition-transform">🏖️</span>
-                            <span class="whitespace-nowrap">E-Cuti</span>
-                        </a>
-                        <a href="/dokumen" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->is('dokumen*') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
-                            <span class="text-lg group-hover:scale-110 transition-transform">🗄️</span>
-                            <span class="whitespace-nowrap">Dokumen</span>
-                        </a>
-                        <a href="/laporan" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('laporan') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
-                            <span class="text-lg group-hover:scale-110 transition-transform">📋</span>
-                            <span class="whitespace-nowrap">Laporan</span>
-                        </a>
-                        <a href="{{ route('incident-reports') }}" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('incident-reports') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
-                            <span class="text-lg group-hover:scale-110 transition-transform">📝</span>
-                            <span class="whitespace-nowrap">Laporan Kejadian</span>
-                        </a>
-                        <a href="/kalender-absen" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('attendance.calendar') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
-                            <span class="text-lg group-hover:scale-110 transition-transform">📊</span>
-                            <span class="whitespace-nowrap">Activity</span>
-                        </a>
-                        @if(auth()->check() && strtolower(trim(auth()->user()->role)) === 'admin')
-                        <a href="{{ route('admin.dashboard') }}" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
-                            <span class="text-lg group-hover:scale-110 transition-transform">🚀</span>
-                            <span class="whitespace-nowrap">Dashboard</span>
-                        </a>
-                        <a href="{{ route('audit.logs') }}" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('audit.logs') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
-                            <span class="text-lg group-hover:scale-110 transition-transform">🔍</span>
-                            <span class="whitespace-nowrap">Audit Logs</span>
-                        </a>
-                        <a href="{{ route('tukin.report') }}" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('tukin.*') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
-                            <span class="text-lg group-hover:scale-110 transition-transform">💰</span>
-                            <span class="whitespace-nowrap">Tukin</span>
-                        </a>
-                        <a href="{{ route('post.assignment') }}" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('post.assignment') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
-                            <span class="text-lg group-hover:scale-110 transition-transform">📍</span>
-                            <span class="whitespace-nowrap">Plotting Pos</span>
-                        </a>
-                        <a href="{{ route('settings') }}" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('settings') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
-                            <span class="text-lg group-hover:scale-110 transition-transform">⚙️</span>
-                            <span class="whitespace-nowrap">Settings</span>
-                        </a>
-                        @endif
-                    </div>
+                    <span class="text-lg md:text-xl font-black text-gray-900 tracking-tighter uppercase hidden xs:block">
+                        {{ config('app.name') }}
+                    </span>
                 </div>
 
-                {{-- KANAN: User Profile & Logout + Hamburger --}}
+                <div class="hidden lg:flex items-center gap-1">
+                    <a href="/" wire:navigate class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all {{ request()->is('/') ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-400 hover:text-indigo-600' }}">Jadwal</a>
+                    <a href="/patroli" wire:navigate class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all {{ request()->is('patroli*') ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-400 hover:text-indigo-600' }}">Patroli</a>
+                    <a href="/cuti" wire:navigate class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all {{ request()->is('cuti*') ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-400 hover:text-indigo-600' }}">Cuti</a>
+                    <a href="/kalender-absen" wire:navigate class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all {{ request()->routeIs('attendance.calendar') ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-400 hover:text-indigo-600' }}">Activity</a>
+                    @if(auth()->check() && auth()->user()->role === 'admin')
+                        <a href="{{ route('admin.dashboard') }}" wire:navigate class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-400 hover:text-indigo-600' }}">Admin</a>
+                    @endif
+                </div>
+
                 <div class="flex items-center gap-2">
-                    <div class="hidden md:flex items-center gap-4">
-                        {{-- Signals --}}
-                        <livewire:notification-bell />
-
-                        {{-- Panic Handler --}}
-                        <livewire:panic-handler />
-
-                        {{-- Info User --}}
-                        <div class="flex flex-col items-end mr-2">
-                            <span class="text-sm font-bold text-gray-900">{{ auth()->user()->name ?? 'Guest' }}</span>
-                            <span class="text-[10px] uppercase tracking-wider text-indigo-600 font-bold bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">
-                                {{ auth()->user()->role ?? '-' }}
-                            </span>
-                        </div>
-                        {{-- Tombol Logout --}}
-                        <a href="/logout" class="h-10 w-10 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all shadow-sm border border-red-100 group" title="Logout">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                            </svg>
+                    <livewire:notification-bell />
+                    <livewire:panic-handler />
+                    <button @click="open = !open" class="lg:hidden h-10 w-10 rounded-xl bg-gray-50 text-gray-500 flex items-center justify-center border border-gray-100">
+                        <svg x-show="!open" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M4 6h16M4 12h16m-7 6h7" /></svg>
+                        <svg x-show="open" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                    <div class="hidden lg:flex items-center gap-3 ml-2">
+                        <a href="/profil" wire:navigate class="h-10 w-10 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-black text-xs uppercase">{{ substr(auth()->user()->name, 0, 2) }}</a>
+                        <a href="/logout" class="h-10 w-10 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                         </a>
-                    </div>
-                    
-                    {{-- Tombol Hamburger (Mobile) --}}
-                    <div class="lg:hidden">
-                        <button @click="open = !open" class="h-12 w-12 rounded-xl bg-white hover:bg-indigo-50 text-indigo-600 border-2 border-indigo-100 shadow-sm transition-all duration-300 transform hover:scale-110 active:scale-95 flex items-center justify-center">
-                            <svg x-show="!open" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7" /></svg>
-                            <svg x-show="open" x-cloak class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        {{-- Mobile Menu Backdrop --}}
-        <div x-show="open" 
-             x-transition:enter="transition-opacity ease-out duration-300"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition-opacity ease-in duration-200"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0"
-             x-cloak
-             class="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm lg:hidden">
-        </div>
-
-        {{-- Mobile Menu Panel --}}
-        <div x-show="open" 
-             @click.away="open = false"
-             x-transition:enter="transition-transform ease-out duration-300"
-             x-transition:enter-start="translate-x-full"
-             x-transition:enter-end="translate-x-0"
-             x-transition:leave="transition-transform ease-in duration-200"
-             x-transition:leave-start="translate-x-0"
-             x-transition:leave-end="translate-x-full"
-             x-cloak
-             class="fixed top-0 right-0 bottom-0 z-50 w-full max-w-sm bg-white shadow-2xl p-6 lg:hidden flex flex-col">
-            
-            {{-- Header Menu Mobile --}}
-            <div class="flex justify-between items-center pb-6 border-b">
-                <span class="text-xl font-extrabold text-gray-800">Menu</span>
-                <button @click="open = false" class="h-10 w-10 rounded-full flex items-center justify-center bg-gray-100 text-gray-500 hover:bg-red-100 hover:text-red-500 transition-all">
-                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
-            </div>
-
-            {{-- Nav Links --}}
-            <div class="mt-6 flex-grow space-y-2">
-                <a @click="open = false" href="/" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->is('/') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">🗓️ <span class="flex-1">Jadwal</span></a>
-                <a @click="open = false" href="/pegawai" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->is('pegawai*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">👥 <span class="flex-1">Pegawai</span></a>
-                <a @click="open = false" href="/inventaris" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->is('inventaris*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">📦 <span class="flex-1">Inventaris</span></a>
-                <a @click="open = false" href="/cuti" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->is('cuti*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">🏖️ <span class="flex-1">E-Cuti</span></a>
-                <a @click="open = false" href="/laporan" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->routeIs('laporan') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">📋 <span class="flex-1">Laporan</span></a>
-                <a @click="open = false" href="{{ route('incident-reports') }}" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->routeIs('incident-reports') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">📝 <span class="flex-1">Laporan Kejadian</span></a>
-                <a @click="open = false" href="/rekap-absensi" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->routeIs('rekap') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">📊 <span class="flex-1">Rekap</span></a>
-                @if(auth()->check() && strtolower(trim(auth()->user()->role)) === 'admin')
-                    <a @click="open = false" href="{{ route('admin.dashboard') }}" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">🚀 <span class="flex-1">Dashboard</span></a>
-                    <a @click="open = false" href="{{ route('tukin.report') }}" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->routeIs('tukin.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">💰 <span class="flex-1">Tukin</span></a>
-                    <a @click="open = false" href="{{ route('post.assignment') }}" wire:navigate class="flex items-center gap-4 px-4 py-3 rounded-xl text-lg font-bold {{ request()->routeIs('post.assignment') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600' }}">📍 <span class="flex-1">Plotting Pos</span></a>
-                @endif
-            </div>
-
-            {{-- Footer Menu Mobile --}}
-            <div class="mt-6 pt-6 border-t">
-                <a href="/logout" class="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl text-lg font-bold bg-red-50 text-red-600 hover:bg-red-100">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                    <span>Logout</span>
-                </a>
+        <div x-show="open" x-cloak class="lg:hidden border-t border-gray-100 bg-white animate__animated animate__fadeIn">
+            <div class="p-4 space-y-2">
+                <a @click="open = false" href="/" wire:navigate class="block p-4 rounded-2xl font-black uppercase tracking-widest text-xs {{ request()->is('/') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-500' }}">Jadwal</a>
+                <a @click="open = false" href="/patroli" wire:navigate class="block p-4 rounded-2xl font-black uppercase tracking-widest text-xs {{ request()->is('patroli*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-500' }}">Patroli</a>
+                <a @click="open = false" href="/cuti" wire:navigate class="block p-4 rounded-2xl font-black uppercase tracking-widest text-xs {{ request()->is('cuti*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-500' }}">Cuti</a>
+                <a @click="open = false" href="/kalender-absen" wire:navigate class="block p-4 rounded-2xl font-black uppercase tracking-widest text-xs {{ request()->routeIs('attendance.calendar') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-500' }}">Activity</a>
+                <div class="h-px bg-gray-100 my-4"></div>
+                <a href="/logout" class="block p-4 text-rose-500 font-black text-xs uppercase tracking-widest text-center bg-rose-50 rounded-xl">Logout</a>
             </div>
         </div>
     </nav>
 
-    {{-- KONTEN UTAMA --}}
-    <main class="min-h-screen">
+    <main class="min-h-[calc(100vh-80px)]">
         {{ $slot }}
     </main>
 
-    {{-- ========================================= --}}
-    {{-- LOGIKA SWEETALERT (TOAST & CONFIRM)       --}}
-    {{-- ========================================= --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script>
         document.addEventListener('livewire:init', () => {
-            
-            // 1. Toast Notification (Pojok Kanan Atas)
             Livewire.on('flash-message', (event) => {
-                // Handle format data (array vs object)
                 const data = Array.isArray(event) ? event[0] : event;
-                const { type = 'success', title = 'Berhasil!', text = '' } = data;
-
-                Swal.fire({
-                    icon: type,
-                    title: title,
-                    text: text,
-                    timer: 3000,
-                    timerProgressBar: true,
-                    showConfirmButton: false,
-                    toast: true,
-                    position: 'top-end',
-                    background: '#fff',
-                    customClass: {
-                        popup: 'shadow-xl rounded-xl border border-gray-100 p-3'
-                    },
-                    showClass: { popup: 'animate__animated animate__fadeInRight' },
-                    hideClass: { popup: 'animate__animated animate__fadeOutRight' }
-                });
+                Swal.fire({ icon: data.type || 'success', title: data.title || 'Status', text: data.text || '', timer: 3000, toast: true, position: 'top-end', showConfirmButton: false });
             });
 
-            // 2. Confirm Dialog (Tengah Layar)
-            Livewire.on('confirm-dialog', (event) => {
-                const data = Array.isArray(event) ? event[0] : event;
-                const { 
-                    title = 'Anda Yakin?', 
-                    text = 'Tindakan ini tidak dapat dibatalkan!', 
-                    confirm_event, 
-                    confirm_params 
-                } = data;
-                
-                Swal.fire({
-                    title: title,
-                    text: text,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#4f46e5', // Indigo 600
-                    cancelButtonColor: '#ef4444',  // Red 500
-                    confirmButtonText: 'Ya, Lanjutkan!',
-                    cancelButtonText: 'Batal',
+            const handleConfirm = (event) => {
+                const data = event.detail || (Array.isArray(event) ? event[0] : event);
+                Swal.fire({ 
+                    title: data.title || 'Confirm Action', 
+                    text: data.text || '', 
+                    icon: data.icon || 'warning', 
+                    showCancelButton: true, 
+                    confirmButtonColor: '#4f46e5', 
+                    cancelButtonColor: '#f43f5e', 
+                    confirmButtonText: 'Execute',
                     reverseButtons: true,
                     customClass: {
-                        popup: 'rounded-2xl',
-                        confirmButton: 'rounded-xl px-4 py-2',
-                        cancelButton: 'rounded-xl px-4 py-2'
+                        popup: 'rounded-[2rem] border-none shadow-2xl p-8',
+                        title: 'text-xl font-black uppercase tracking-tighter text-gray-900',
+                        htmlContainer: 'text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-2',
+                        confirmButton: 'rounded-xl px-6 py-3 text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-500/20',
+                        cancelButton: 'rounded-xl px-6 py-3 text-[10px] font-black uppercase tracking-widest'
                     }
                 }).then((result) => {
-                    if (result.isConfirmed) {
-                        Livewire.dispatch(confirm_event, confirm_params);
-                    }
+                    if (result.isConfirmed) { Livewire.dispatch(data.confirm_event, data.confirm_params || {}); }
                 });
-            });
+            };
 
-            // 3. Listener untuk Event 'roster-updated' (Supaya konsisten dengan controller sebelumnya)
-            Livewire.on('roster-updated', (event) => {
-                 const data = Array.isArray(event) ? event[0] : event;
-                 Swal.fire({
-                    icon: 'success',
-                    title: 'Sukses!',
-                    text: data.message || 'Data berhasil diperbarui',
-                    timer: 2000,
-                    showConfirmButton: false,
-                    toast: true,
-                    position: 'top-end'
-                });
-            });
+            window.addEventListener('confirm-dialog', handleConfirm);
+            Livewire.on('confirm-dialog', handleConfirm);
         });
     </script>
-    
     @stack('scripts')
 </body>
 </html>
