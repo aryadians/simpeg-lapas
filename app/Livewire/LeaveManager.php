@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\LeaveRequestSubmitted;
 use Livewire\Attributes\On;
+use App\Notifications\GeneralNotification;
 
 class LeaveManager extends Component
 {
@@ -22,7 +23,12 @@ class LeaveManager extends Component
     #[On('approveConfirmed')]
     public function approveConfirmed($id)
     {
-        LeaveRequest::find($id)->update(['status' => 'approved']);
+        $req = LeaveRequest::findOrFail($id);
+        $req->update(['status' => 'approved']);
+        
+        // Notifikasi ke User
+        $req->user->notify(new GeneralNotification('Permohonan izin Anda telah DISETUJUI.'));
+
         $this->dispatch('flash-message', text: 'Permohonan izin telah disetujui!');
     }
 
@@ -34,7 +40,12 @@ class LeaveManager extends Component
     #[On('rejectConfirmed')]
     public function rejectConfirmed($id)
     {
-        LeaveRequest::find($id)->update(['status' => 'rejected']);
+        $req = LeaveRequest::findOrFail($id);
+        $req->update(['status' => 'rejected']);
+
+        // Notifikasi ke User
+        $req->user->notify(new GeneralNotification('Permohonan izin Anda DITOLAK.'));
+
         $this->dispatch('flash-message', type: 'info', title: 'Izin Ditolak', text: 'Permohonan izin telah ditolak.');
     }
 
@@ -54,18 +65,21 @@ class LeaveManager extends Component
             'status'     => 'pending'
         ]);
 
+        $admins = User::where('role', 'admin')->get();
+
+        // Notifikasi Database ke Admin
+        foreach ($admins as $admin) {
+            $admin->notify(new GeneralNotification(Auth::user()->name . ' mengajukan izin baru.'));
+        }
+
         // Kirim email notifikasi ke semua admin
         try {
-            $admins = User::where('role', 'admin')->get();
             foreach ($admins as $admin) {
                 if($admin->email) {
                     Mail::to($admin->email)->send(new LeaveRequestSubmitted($leaveRequest));
                 }
             }
-        } catch (\Exception $e) {
-            // Jika email gagal, jangan hentikan proses. Cukup catat error jika perlu.
-            // Log::error('Gagal mengirim email notifikasi cuti: ' . $e->getMessage());
-        }
+        } catch (\Exception $e) { }
 
         $this->reset(['start_date', 'end_date', 'reason']);
         $this->dispatch('flash-message', text: 'Pengajuan cuti Anda telah berhasil dikirim!');

@@ -134,9 +134,35 @@
                         <canvas x-ref="canvas" class="hidden"></canvas>
                         <img x-ref="photo" class="hidden w-full h-full object-cover" />
                         
-                        <!-- Overlay Guide -->
-                        <div x-show="!isPhotoTaken" class="absolute inset-0 border-[30px] border-black/20 rounded-full scale-110 pointer-events-none"></div>
+                        <!-- AI Scan Overlay -->
+                        <div x-show="!isPhotoTaken" class="absolute inset-0 pointer-events-none overflow-hidden">
+                            {{-- Scanning Line --}}
+                            <div class="absolute inset-x-0 h-1 bg-indigo-500 shadow-[0_0_15px_rgba(79,70,229,0.8)] animate-[scan_3s_infinite] z-20"></div>
+                            
+                            {{-- Face Bounds --}}
+                            <div class="absolute inset-0 border-[40px] border-black/40 rounded-full scale-110 z-10"></div>
+                            
+                            {{-- Corners --}}
+                            <div class="absolute top-10 left-10 w-8 h-8 border-t-4 border-l-4 border-indigo-500 rounded-tl-lg"></div>
+                            <div class="absolute top-10 right-10 w-8 h-8 border-t-4 border-r-4 border-indigo-500 rounded-tr-lg"></div>
+                            <div class="absolute bottom-10 left-10 w-8 h-8 border-b-4 border-l-4 border-indigo-500 rounded-bl-lg"></div>
+                            <div class="absolute bottom-10 right-10 w-8 h-8 border-b-4 border-r-4 border-indigo-500 rounded-br-lg"></div>
+                            
+                            <div class="absolute top-4 left-1/2 -translate-x-1/2 px-3 py-1 bg-black/60 backdrop-blur-md rounded-full border border-white/10 flex items-center gap-2">
+                                <div class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                                <span class="text-[8px] font-black text-white uppercase tracking-[0.2em]">AI: Detecting Face</span>
+                            </div>
+                        </div>
                     </div>
+
+                    <style>
+                        @keyframes scan {
+                            0% { top: 0%; opacity: 0; }
+                            10% { opacity: 1; }
+                            90% { opacity: 1; }
+                            100% { top: 100%; opacity: 0; }
+                        }
+                    </style>
                     <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-3">
                          <button x-show="!isPhotoTaken" @click="takePhoto()" class="px-6 py-2.5 bg-white/90 backdrop-blur-sm text-indigo-600 rounded-full text-xs font-black shadow-lg hover:bg-white transition uppercase tracking-widest">Capture</button>
                          <button x-show="isPhotoTaken" @click="retakePhoto()" class="px-6 py-2.5 bg-rose-500/90 backdrop-blur-sm text-white rounded-full text-xs font-black shadow-lg hover:bg-rose-600 transition uppercase tracking-widest">Retake</button>

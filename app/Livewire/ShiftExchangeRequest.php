@@ -8,6 +8,7 @@ use App\Models\Roster;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Notifications\GeneralNotification;
 
 class ShiftExchangeRequest extends Component
 {
@@ -24,14 +25,12 @@ class ShiftExchangeRequest extends Component
 
     public function mount()
     {
-        // Ambil jadwal saya yang akan datang
         $this->myRosters = Roster::where('user_id', Auth::id())
             ->where('date', '>=', Carbon::today())
             ->with('shift')
             ->orderBy('date')
             ->get();
             
-        // Ambil user lain kecuali diri sendiri
         $this->targetUsers = User::where('id', '!=', Auth::id())->orderBy('name')->get();
         $this->targetRosters = collect();
     }
@@ -39,7 +38,6 @@ class ShiftExchangeRequest extends Component
     public function updatedSelectedTargetUserId($value)
     {
         if ($value) {
-            // Ambil jadwal target user yang akan datang
             $this->targetRosters = Roster::where('user_id', $value)
                 ->where('date', '>=', Carbon::today())
                 ->with('shift')
@@ -59,77 +57,83 @@ class ShiftExchangeRequest extends Component
             'reason' => 'required|string|max:255',
         ]);
 
-        // Validasi kepemilikan jadwal
         $myRoster = Roster::find($this->selectedRosterId);
         if ($myRoster->user_id !== Auth::id()) {
             $this->addError('selectedRosterId', 'Jadwal ini bukan milik Anda.');
             return;
         }
 
-        if ($this->selectedTargetRosterId) {
-            $targetRoster = Roster::find($this->selectedTargetRosterId);
-            if ($targetRoster->user_id != $this->selectedTargetUserId) {
-                $this->addError('selectedTargetRosterId', 'Jadwal target tidak valid.');
-                return;
-            }
-        }
-
         ShiftExchange::create([
             'requester_id' => Auth::id(),
             'target_user_id' => $this->selectedTargetUserId,
             'roster_id_from' => $this->selectedRosterId,
-            'roster_id_to' => $this->selectedTargetRosterId, // Bisa null jika cuma minta gantiin tanpa tukar
+            'roster_id_to' => $this->selectedTargetRosterId,
             'reason' => $this->reason,
             'status' => 'pending'
         ]);
+
+        // Notifikasi ke Target
+        $target = User::find($this->selectedTargetUserId);
+        $target->notify(new GeneralNotification(
+            Auth::user()->name . ' meminta tukar dinas dengan Anda.',
+            route('shift.exchange')
+        ));
 
         $this->reset(['selectedRosterId', 'selectedTargetUserId', 'selectedTargetRosterId', 'reason', 'targetRosters']);
         $this->dispatch('flash-message', text: 'Permintaan tukar dinas berhasil dikirim.');
     }
 
-    // Aksi untuk Target User (Setujui/Tolak)
     public function approveRequest($id)
     {
         $exchange = ShiftExchange::find($id);
-        
-        // Pastikan yang approve adalah target user
         if ($exchange->target_user_id !== Auth::id()) return;
 
         $exchange->update(['status' => 'approved_by_target']);
+
+        // Notifikasi ke Requester
+        $exchange->requester->notify(new GeneralNotification(
+            Auth::user()->name . ' menyetujui pertukaran dinas. Menunggu verifikasi Admin.',
+            route('shift.exchange')
+        ));
+
+        // Notifikasi ke Admin
+        $admins = User::where('role', 'admin')->get();
+        foreach($admins as $admin) {
+            $admin->notify(new GeneralNotification('Request tukar dinas butuh otorisasi.'));
+        }
+
         $this->dispatch('flash-message', text: 'Anda menyetujui pertukaran. Menunggu admin.');
     }
 
     public function rejectRequest($id)
     {
         $exchange = ShiftExchange::find($id);
-        if ($exchange->target_user_id !== Auth::id() && $exchange->requester_id !== Auth::id()) return; // Requester juga bisa batalkan
+        if ($exchange->target_user_id !== Auth::id() && $exchange->requester_id !== Auth::id()) return;
 
         $exchange->update(['status' => 'rejected']);
         $this->dispatch('flash-message', type: 'info', text: 'Permintaan dibatalkan/ditolak.');
     }
 
-    // Aksi untuk Admin (Final Approve)
     public function adminApprove($id)
     {
         if (Auth::user()->role !== 'admin') return;
 
         $exchange = ShiftExchange::find($id);
         
-        // Lakukan Pertukaran Jadwal di Tabel Roster
         $rosterFrom = Roster::find($exchange->roster_id_from);
         $rosterTo = $exchange->roster_id_to ? Roster::find($exchange->roster_id_to) : null;
 
-        // Tukar User ID
-        // Roster From (Punya Requester) -> Jadi Punya Target
         $rosterFrom->update(['user_id' => $exchange->target_user_id]);
-
         if ($rosterTo) {
-            // Roster To (Punya Target) -> Jadi Punya Requester
             $rosterTo->update(['user_id' => $exchange->requester_id]);
         }
 
         $exchange->update(['status' => 'approved_by_admin']);
-        $this->dispatch('flash-message', text: 'Pertukaran jadwal resmi disetujui & diperbarui.');
+
+        $exchange->requester->notify(new GeneralNotification('Swap disetujui Admin.'));
+        $exchange->targetUser->notify(new GeneralNotification('Swap disetujui Admin.'));
+
+        $this->dispatch('flash-message', text: 'Pertukaran resmi disetujui.');
     }
 
     public function render()

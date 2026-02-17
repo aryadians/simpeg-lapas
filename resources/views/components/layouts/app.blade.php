@@ -119,6 +119,10 @@
                             <span class="text-lg group-hover:scale-110 transition-transform">🏖️</span>
                             <span class="whitespace-nowrap">E-Cuti</span>
                         </a>
+                        <a href="/dokumen" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->is('dokumen*') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
+                            <span class="text-lg group-hover:scale-110 transition-transform">🗄️</span>
+                            <span class="whitespace-nowrap">Dokumen</span>
+                        </a>
                         <a href="/laporan" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('laporan') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
                             <span class="text-lg group-hover:scale-110 transition-transform">📋</span>
                             <span class="whitespace-nowrap">Laporan</span>
@@ -155,6 +159,9 @@
                 {{-- KANAN: User Profile & Logout + Hamburger --}}
                 <div class="flex items-center gap-2">
                     <div class="hidden md:flex items-center gap-4">
+                        {{-- Signals --}}
+                        <livewire:notification-bell />
+
                         {{-- Panic Handler --}}
                         <livewire:panic-handler />
 

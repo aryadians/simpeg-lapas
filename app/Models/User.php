@@ -65,8 +65,11 @@ class User extends Authenticatable
     /**
      * Get the rosters for the user.
      */
-    public function rosters()
+    /**
+     * Check if the user is online.
+     */
+    public function isOnline()
     {
-        return $this->hasMany(Roster::class);
+        return \Illuminate\Support\Facades\Cache::has('user-is-online-' . $this->id);
     }
 }

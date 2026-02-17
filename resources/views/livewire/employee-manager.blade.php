@@ -42,8 +42,13 @@
                 <div class="p-8">
                     <div class="flex items-start gap-6">
                         {{-- Avatar --}}
-                        <div class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-2xl h-16 w-16 flex items-center justify-center font-black text-2xl shadow-xl shadow-indigo-500/20 shrink-0 transform group-hover:-rotate-6 transition-transform duration-500">
-                            {{ strtoupper(substr($employee->name, 0, 2)) }}
+                        <div class="relative shrink-0">
+                            <div class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-2xl h-16 w-16 flex items-center justify-center font-black text-2xl shadow-xl shadow-indigo-500/20 transform group-hover:-rotate-6 transition-transform duration-500">
+                                {{ strtoupper(substr($employee->name, 0, 2)) }}
+                            </div>
+                            @if($employee->isOnline())
+                                <span class="absolute -bottom-1 -right-1 h-5 w-5 bg-emerald-500 border-4 border-white rounded-full shadow-sm animate-pulse"></span>
+                            @endif
                         </div>
                         {{-- Info Utama --}}
                         <div class="flex-1 min-w-0">

@@ -14,6 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'restrict-ip' => \App\Http\Middleware\RestrictIpAddress::class,
         ]);
+        
+        $middleware->append(\App\Http\Middleware\UpdateUserPresence::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

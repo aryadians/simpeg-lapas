@@ -68,12 +68,16 @@ Route::middleware('auth')->group(function () {
     // Patroli (QR Checkpoint)
     Route::get('/patroli', \App\Livewire\PatrolManager::class)->name('patrol');
 
+    // Document Vault
+    Route::get('/dokumen', \App\Livewire\DocumentVault::class)->name('documents');
+
     // Profil User (Ganti Password)
     Route::get('/profil', UserProfile::class)->name('profil');
 
     // Cetak PDF
     Route::get('/cetak-laporan', [RosterReportController::class, 'print'])->name('cetak');
     Route::get('/cetak-laporan-tukin/{month}', [RosterReportController::class, 'printTukinReport'])->name('tukin.report.pdf');
+    Route::get('/cetak-laporan-patroli/{month}', [RosterReportController::class, 'printPatrolReport'])->name('patrol.report.pdf');
     Route::get('/rekap-absensi', \App\Livewire\AttendanceReport::class)->name('rekap');
 
     // Logout

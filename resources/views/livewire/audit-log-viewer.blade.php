@@ -1,40 +1,24 @@
-<div class="min-h-screen bg-gray-50 p-6 lg:p-8 font-sans">
+<div class="min-h-screen bg-gray-50 p-6 lg:p-8 font-sans" x-data="{ 
+    showDetail: false, 
+    selectedLog: null,
+    openDetail(log) {
+        this.selectedLog = log;
+        this.showDetail = true;
+    }
+}">
     <div class="max-w-7xl mx-auto">
         
-        {{-- HEADER --}}
-        <header class="mb-10 animate__animated animate__fadeInDown relative">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-6 p-8 bg-white rounded-[2rem] shadow-xl border border-gray-100 overflow-hidden relative">
-                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-slate-100 rounded-full blur-3xl opacity-60"></div>
-                <div class="relative z-10 text-center md:text-left">
-                    <h1 class="text-4xl font-black text-gray-900 tracking-tighter uppercase">Audit <span class="text-indigo-600">Trail</span></h1>
-                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mt-1">Operational Activity & Integrity Log</p>
-                </div>
-                
-                <div class="relative group w-full md:w-72 z-10">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                    </div>
-                    <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search Logs..." class="pl-10 pr-6 py-3 w-full border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 shadow-inner transition-all duration-300 font-bold text-xs uppercase tracking-widest">
-                </div>
-            </div>
-        </header>
+        {{-- ... (header) ... --}}
 
         {{-- TABLE LOGS --}}
         <div class="bg-white rounded-[2rem] shadow-xl border border-gray-100 overflow-hidden animate__animated animate__fadeInUp">
             <div class="overflow-x-auto no-scrollbar">
                 <table class="w-full text-left border-collapse">
-                    <thead class="bg-gray-50/50 border-b border-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
-                        <tr>
-                            <th class="py-6 px-8">Timestamp</th>
-                            <th class="py-6 px-8">Operator</th>
-                            <th class="py-6 px-8">Event</th>
-                            <th class="py-6 px-8">Object Type</th>
-                            <th class="py-6 px-8">Source IP</th>
-                        </tr>
-                    </thead>
+                    {{-- ... (thead) ... --}}
                     <tbody class="divide-y divide-gray-50 font-medium">
                         @forelse($logs as $log)
-                        <tr class="hover:bg-indigo-50/30 transition-colors group">
+                        <tr @click="openDetail({{ json_encode($log) }})" class="hover:bg-indigo-50/30 transition-colors group cursor-pointer">
+                            {{-- ... (tr content) ... --}}
                             <td class="py-6 px-8 font-mono text-[10px] text-gray-400 font-bold uppercase tracking-tighter">
                                 {{ $log->created_at->format('Y-m-d H:i:s.v') }}
                             </td>
@@ -77,6 +61,43 @@
             </div>
             <div class="p-8 bg-gray-50/30 border-t border-gray-50">
                 {{ $logs->links() }}
+            </div>
+        </div>
+    </div>
+
+    {{-- JSON Detail Modal --}}
+    <div x-show="showDetail" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" x-cloak>
+        
+        <div @click.away="showDetail = false" class="bg-gray-900 rounded-[2.5rem] shadow-2xl w-full max-w-2xl relative overflow-hidden border border-white/10">
+            <div class="p-8 border-b border-white/5 bg-white/5 flex justify-between items-center">
+                <div>
+                    <h3 class="text-xl font-black text-white uppercase tracking-tighter">Event <span class="text-indigo-400">Intelligence</span></h3>
+                    <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mt-1">Raw Payload Analysis</p>
+                </div>
+                <button @click="showDetail = false" class="text-gray-500 hover:text-white transition-colors">✕</button>
+            </div>
+            
+            <div class="p-8 max-h-[60vh] overflow-y-auto no-scrollbar space-y-8">
+                <div x-show="selectedLog?.old_values" class="space-y-3">
+                    <p class="text-[10px] font-black text-rose-500 uppercase tracking-widest ml-1">Previous State (Old)</p>
+                    <pre class="p-6 bg-black/40 rounded-2xl border border-rose-500/20 text-rose-300 font-mono text-[10px] overflow-x-auto" x-text="JSON.stringify(JSON.parse(selectedLog?.old_values || '{}'), null, 2)"></pre>
+                </div>
+                
+                <div x-show="selectedLog?.new_values" class="space-y-3">
+                    <p class="text-[10px] font-black text-emerald-500 uppercase tracking-widest ml-1">Committed State (New)</p>
+                    <pre class="p-6 bg-black/40 rounded-2xl border border-emerald-500/20 text-emerald-300 font-mono text-[10px] overflow-x-auto" x-text="JSON.stringify(JSON.parse(selectedLog?.new_values || '{}'), null, 2)"></pre>
+                </div>
+            </div>
+            
+            <div class="p-8 bg-black/20 border-t border-white/5 text-center">
+                <button @click="showDetail = false" class="text-[10px] font-black text-gray-500 uppercase tracking-widest hover:text-indigo-400 transition-colors">Terminate View</button>
             </div>
         </div>
     </div>

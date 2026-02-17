@@ -54,7 +54,10 @@
 
             {{-- Recent History --}}
             <div class="bg-white rounded-[2rem] shadow-xl border border-gray-100 p-8 overflow-hidden relative">
-                <h3 class="text-lg font-black text-gray-900 uppercase tracking-tighter mb-8">Daily Activity</h3>
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="text-lg font-black text-gray-900 uppercase tracking-tighter">Daily Activity</h3>
+                    <a href="{{ route('patrol.report.pdf', ['month' => now()->format('Y-m')]) }}" target="_blank" class="text-[9px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100 hover:bg-indigo-600 hover:text-white transition-all">Export PDF</a>
+                </div>
                 
                 <div class="space-y-6 relative">
                     <div class="absolute left-6 top-0 bottom-0 w-px bg-gray-100"></div>

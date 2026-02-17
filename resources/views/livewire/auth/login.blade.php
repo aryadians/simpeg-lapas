@@ -17,6 +17,7 @@
         {{-- Decorative Blob --}}
         <div class="absolute -top-24 -right-24 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl"></div>
         
+        @if(!$showOtpForm)
         <form wire:submit="login" class="space-y-6 relative z-10">
             
             {{-- Input Email --}}
@@ -68,6 +69,37 @@
                 </button>
             </div>
         </form>
+        @else
+        <form wire:submit="verifyOtp" class="space-y-6 relative z-10 animate__animated animate__fadeIn">
+            <div class="text-center mb-6">
+                <h3 class="text-white font-bold text-lg">Two-Factor Authentication</h3>
+                <p class="text-indigo-200 text-xs mt-1">Kode verifikasi telah dikirim ke email Anda.</p>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-[10px] font-black text-indigo-200 uppercase tracking-widest ml-1">Verification Code</label>
+                <input wire:model="otp" type="text" 
+                       class="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-4 text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-300 font-medium text-center text-2xl tracking-[0.5em]"
+                       placeholder="XXXXXX" maxlength="6" autofocus>
+                @error('otp') <span class="text-rose-400 text-[10px] font-bold uppercase tracking-wide px-1 block text-center">{{ $message }}</span> @enderror
+            </div>
+
+            <div class="pt-2">
+                <button type="submit" 
+                        class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black py-4 rounded-2xl shadow-xl shadow-emerald-600/30 transform transition-all duration-300 hover:shadow-emerald-600/50 hover:-translate-y-1 active:scale-95 group uppercase tracking-widest text-sm">
+                    <span wire:loading.remove wire:target="verifyOtp">
+                        Verify Identity
+                    </span>
+                    <div wire:loading wire:target="verifyOtp" class="flex items-center justify-center">
+                        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                </button>
+            </div>
+        </form>
+        @endif
     </div>
     
     <div class="mt-12 flex flex-col items-center gap-4">
