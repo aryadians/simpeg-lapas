@@ -11,6 +11,9 @@ use App\Models\Inventory;
 use App\Models\AuditLog;
 use App\Models\PatrolLog;
 use App\Models\ShiftExchange;
+use App\Models\Attendance;
+use App\Models\DailyLog;
+use App\Models\Roster;
 use Carbon\Carbon;
 
 class AdminDashboard extends Component
@@ -32,13 +35,15 @@ class AdminDashboard extends Component
     public $attendanceTrendData = [];
     public $lateTrendData = [];
 
+    // Leaderboard
+    public $topPerformers = [];
+
     public function mount()
     {
         if (!Auth::check() || Auth::user()->role !== 'admin') {
             abort(403, 'Unauthorized Access');
         }
 
-        // ... (keep existing simple stats) ...
         $this->totalEmployees = User::count();
         $this->pendingLeaveRequests = LeaveRequest::where('status', 'pending')->count();
         $this->recentIncidents = IncidentReport::where('created_at', '>=', Carbon::now()->subHours(24))->count();
@@ -49,6 +54,9 @@ class AdminDashboard extends Component
         $this->patrolsToday = PatrolLog::whereDate('created_at', Carbon::today())->count();
         $this->pendingSwaps = ShiftExchange::where('status', 'approved_by_target')->count();
         $this->recentAuditLogs = AuditLog::with('user')->latest()->take(5)->get();
+
+        // Calculate Leaderboard (This Month)
+        $this->calculateLeaderboard();
 
         // Prepare Chart Data (Last 7 Days)
         for ($i = 6; $i >= 0; $i--) {
@@ -63,6 +71,35 @@ class AdminDashboard extends Component
                 ->where('status', 'terlambat')
                 ->count();
         }
+    }
+
+    private function calculateLeaderboard()
+    {
+        $users = User::where('role', 'staff')->get();
+        $leaderboard = [];
+
+        foreach($users as $user) {
+            $score = 0;
+            $attendances = Attendance::where('user_id', $user->id)->whereMonth('date', Carbon::now()->month)->get();
+            
+            foreach($attendances as $att) {
+                if($att->status === 'hadir') $score += 10;
+                elseif($att->status === 'terlambat') $score -= 5;
+                elseif($att->status === 'alpha') $score -= 20;
+            }
+
+            $score += PatrolLog::where('user_id', $user->id)->whereMonth('created_at', Carbon::now()->month)->count() * 5;
+            $score += DailyLog::where('user_id', $user->id)->whereMonth('created_at', Carbon::now()->month)->count() * 5;
+
+            $leaderboard[] = [
+                'name' => $user->name,
+                'score' => $score,
+                'avatar' => strtoupper(substr($user->name, 0, 2))
+            ];
+        }
+
+        usort($leaderboard, fn($a, $b) => $b['score'] <=> $a['score']);
+        $this->topPerformers = array_slice($leaderboard, 0, 5);
     }
 
     public function render()

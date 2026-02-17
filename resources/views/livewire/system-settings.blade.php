@@ -82,11 +82,14 @@
             </div>
 
             {{-- SAVE BUTTON --}}
-            <div class="flex justify-end pt-4 pb-20">
+            <div class="flex justify-end pt-4 mb-12">
                 <button type="submit" class="px-12 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl shadow-lg shadow-indigo-500/30 transform transition-all active:scale-95 uppercase tracking-[0.2em] text-xs">
                     Commit Configurations
                 </button>
             </div>
+
+            {{-- BACKUP SECTION --}}
+            <livewire:backup-manager />
 
         </form>
     </div>

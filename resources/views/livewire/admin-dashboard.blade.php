@@ -67,11 +67,41 @@
                     {{-- ... (existing alerts and leave queue) ... --}}
                 </div>
 
-                {{-- ANALYTICS CHART SECTION --}}
-                <div class="bg-white rounded-[2rem] shadow-xl border border-gray-100 p-8">
-                    <h3 class="text-lg font-black text-gray-900 uppercase tracking-tighter mb-6">Attendance Intelligence (7 Days)</h3>
-                    <div class="relative h-64 w-full">
-                        <canvas id="adminTrendChart"></canvas>
+                {{-- ANALYTICS & LEADERBOARD SECTION --}}
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {{-- Chart --}}
+                    <div class="lg:col-span-2 bg-white rounded-[2rem] shadow-xl border border-gray-100 p-8">
+                        <h3 class="text-lg font-black text-gray-900 uppercase tracking-tighter mb-6">Attendance Intelligence (7 Days)</h3>
+                        <div class="relative h-64 w-full">
+                            <canvas id="adminTrendChart"></canvas>
+                        </div>
+                    </div>
+
+                    {{-- Leaderboard --}}
+                    <div class="bg-gray-900 rounded-[2rem] shadow-2xl p-8 border-t-4 border-emerald-500">
+                        <h3 class="text-lg font-black text-white uppercase tracking-tighter mb-8 flex items-center gap-3">
+                            <span class="text-xl">🏆</span>
+                            Top Performers
+                        </h3>
+                        <div class="space-y-6">
+                            @foreach($topPerformers as $performer)
+                            <div class="flex items-center justify-between group">
+                                <div class="flex items-center gap-4">
+                                    <div class="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center font-black text-xs text-indigo-400 border border-white/5 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-500">
+                                        {{ $performer['avatar'] }}
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-black text-white uppercase tracking-tight truncate w-32">{{ $performer['name'] }}</p>
+                                        <p class="text-[9px] font-black text-emerald-500 uppercase tracking-widest mt-0.5">Rating: High</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-black text-white font-mono">{{ $performer['score'] }}</p>
+                                    <p class="text-[8px] font-bold text-white/20 uppercase">PTS</p>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
             </div>

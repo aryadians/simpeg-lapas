@@ -1,119 +1,143 @@
 <div align="center">
 
-# 🏢 SIMPEG Lapas
-### (Sistem Informasi Manajemen Kepegawaian)
+<!-- Project Logo -->
+<div style="background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%); width: 120px; height: 120px; border-radius: 40px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; shadow: 0 20px 50px rgba(79, 70, 229, 0.3);">
+    <span style="font-size: 60px; font-weight: 900; color: white; font-family: 'Inter', sans-serif;">S</span>
+</div>
 
-**Aplikasi manajemen kepegawaian modern yang dirancang untuk digitalisasi operasional di Lembaga Pemasyarakatan.**
+# 🏢 SIMPEG LAPAS v2.0
+### **Institutional Personnel Intelligence & Operational Resource Planning**
 
-<p>
-    <img alt="PHP" src="https://img.shields.io/badge/PHP-^8.2-777BB4.svg?style=for-the-badge&logo=php"/>
-    <img alt="Laravel" src="https://img.shields.io/badge/Laravel-^12.0-FF2D20.svg?style=for-the-badge&logo=laravel"/>
-    <img alt="Livewire" src="https://img.shields.io/badge/Livewire-^4.0-4E56A6.svg?style=for-the-badge&logo=livewire"/>
-    <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-38B2AC.svg?style=for-the-badge&logo=tailwind-css"/>
-    <img alt="License" src="https://img.shields.io/github/license/aryadians/simpeg-lapas?style=for-the-badge&color=green"/>
+**Sistem informasi manajemen kepegawaian modern yang dirancang khusus untuk digitalisasi, keamanan, dan efisiensi operasional di Lembaga Pemasyarakatan.**
+
+<p align="center">
+    <img src="https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white" />
+    <img src="https://img.shields.io/badge/Laravel-12.0-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" />
+    <img src="https://img.shields.io/badge/Livewire-4.0-4E56A6?style=for-the-badge&logo=livewire&logoColor=white" />
+    <img src="https://img.shields.io/badge/Tailwind_CSS-3.0-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" />
+</p>
+
+<p align="center">
+    <img src="https://img.shields.io/badge/Security-MFA_Enabled-success?style=flat-square" />
+    <img src="https://img.shields.io/badge/Status-Production_Ready-blue?style=flat-square" />
+    <img src="https://img.shields.io/badge/Architecture-TALL_Stack-indigo?style=flat-square" />
+    <img src="https://img.shields.io/badge/UI-High_End_Enterprise-black?style=flat-square" />
 </p>
 
 </div>
 
 ---
 
-**SIMPEG Lapas** adalah solusi terintegrasi untuk mengelola seluruh aspek administrasi kepegawaian di lingkungan lapas, mulai dari penjadwalan, absensi, hingga pelaporan, dengan fokus pada kemudahan penggunaan dan keamanan data.
+## 📖 Deskripsi Proyek
 
-## ✨ Fitur Utama
+**SIMPEG Lapas** bukan sekadar aplikasi absensi. Ini adalah solusi **Enterprise Resource Planning (ERP)** terintegrasi yang menangani seluruh spektrum manajemen SDM dan keamanan di Lapas. Mulai dari algoritma penjadwalan dinas otomatis, sistem verifikasi biometrik dengan *geofencing*, hingga protokol keamanan tingkat tinggi seperti **Panic Button** dan **Audit Trail Intel**.
 
-- **🚀 Dashboard Admin:** Dasbor khusus untuk admin yang menampilkan ringkasan statistik vital dari seluruh sistem, seperti pegawai yang bertugas, pengajuan cuti, laporan kejadian, dan inventaris.
-- **👤 Manajemen Pegawai:** Pengelolaan data master pegawai, termasuk informasi pribadi, jabatan, dan grade tukin.
-- **🗓️ Penjadwalan Dinas:** Pembuatan jadwal dinas (roster) bulanan secara otomatis dengan algoritma yang adil.
-- **📍 Absensi Cerdas (Geofencing & Selfie):**
-  - **Verifikasi Lokasi:** Mengunci tombol absen agar hanya aktif jika pegawai berada dalam radius yang ditentukan dari titik koordinat lapas.
-  - **Bukti Kehadiran:** Mewajibkan pegawai untuk mengambil foto selfie saat melakukan absen masuk sebagai bukti kehadiran fisik.
-  - **Deteksi Shift:** Secara otomatis mengenali jadwal shift pegawai dan menangani absensi yang melintasi hari.
-- **📦 Manajemen Inventaris:** Pencatatan dan pelacakan barang inventaris lapas, termasuk riwayat peminjaman dan pengembalian barang.
-- **🌴 Manajemen Cuti:** Proses pengajuan dan persetujuan cuti secara digital dan terintegrasi dengan sistem penjadwalan.
-- **📓 Buku Laporan Jaga:** Digitalisasi laporan aplusan regu jaga, mencatat inventaris, jumlah penghuni, dan kejadian penting.
-- **💥 Laporan Insiden:** Fitur khusus untuk mencatat dan mengelola laporan kejadian tak terduga selama jam dinas.
-- **💰 Laporan Tukin:** Kalkulasi otomatis potongan tunjangan kinerja (tukin) berdasarkan data keterlambatan dan absensi.
-- **🖨️ Ekspor PDF:** Mencetak berbagai laporan penting seperti jadwal dinas dan rekap tukin dalam format PDF yang rapi.
-- **🔐 Sistem Autentikasi:** Sistem login yang aman dengan manajemen peran (Admin & Pegawai).
+Aplikasi ini dibangun menggunakan **TALL Stack** (Tailwind, Alpine.js, Laravel, Livewire) untuk memastikan performa yang ringan, responsif, dan interaktif secara real-time.
 
 ---
 
-## 🛠️ Tumpukan Teknologi
+## 🚀 Fitur Utama & Kapabilitas
 
-- **Backend:** [Laravel](https://laravel.com/) - PHP Framework
-- **Frontend:** [Blade](https://laravel.com/docs/blade) + [Livewire](https://livewire.laravel.com/)
-- **UI Interactivity:** [Alpine.js](https://alpinejs.dev/)
-- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
-- **Database:** Dapat dikonfigurasi (MySQL, PostgreSQL, SQLite)
-- **PDF Generation:** `barryvdh/laravel-dompdf`
+Berikut adalah rincian fitur yang telah diimplementasikan dari tahap awal hingga optimasi final:
+
+| Kategori | Fitur | Deskripsi | Status |
+| :--- | :--- | :--- | :---: |
+| **Security** | 🔐 **MFA (OTP Email)** | Proteksi login Admin menggunakan verifikasi kode 6-digit via email. | ✅ |
+| | 🛡️ **Audit Trail Intel** | Pencatatan setiap perubahan data (JSON payload) untuk transparansi mutlak. | ✅ |
+| | 🧱 **IP Restriction** | Pembatasan akses dashboard admin berdasarkan daftar IP yang diizinkan. | ✅ |
+| | 🚨 **Panic Button** | Sinyal darurat real-time yang memicu alarm visual di seluruh sistem. | ✅ |
+| **Operations** | 🗓️ **Roster Engine** | Algoritma otomatisasi jadwal dinas bulanan bagi seluruh regu jaga. | ✅ |
+| | 📍 **Biometric Presence** | Absensi dengan verifikasi GPS (Geofencing) dan Foto Selfie AI-Scan. | ✅ |
+| | 🛡️ **QR Checkpoint** | Verifikasi patroli petugas di titik rawan menggunakan kode lokasi. | ✅ |
+| | 🔄 **Shift Exchange** | Sistem pertukaran jadwal dinas antar pegawai dengan alur approval. | ✅ |
+| **Personnel** | 👥 **Asset Database** | Manajemen master data pegawai lengkap dengan grade Tukin & jabatan. | ✅ |
+| | 🏖️ **E-Leave Portal** | Pengajuan dan persetujuan cuti digital secara paperless. | ✅ |
+| | 🗄️ **Digital Vault** | Brankas dokumen digital terenkripsi untuk menyimpan SK/Sertifikat. | ✅ |
+| | 📊 **Activity Journal** | Kalender riwayat kehadiran dan performa harian yang interaktif. | ✅ |
+| **Intelligence** | 📈 **Real-time Analytics** | Visualisasi tren kehadiran dan kedisiplinan via Chart.js. | ✅ |
+| | 💰 **Payroll Analytics** | Kalkulasi otomatis potongan Tukin berdasarkan keterlambatan/alpha. | ✅ |
+| | 🏆 **Officer Index** | Leaderboard reputasi petugas berdasarkan performa operasional. | ✅ |
+| | 📄 **PDF Reporting** | Ekspor laporan jadwal, Tukin, dan Patroli ke format dokumen resmi. | ✅ |
+| **System** | 🌓 **Night Shift Mode** | Antarmuka Dark Mode premium untuk kenyamanan petugas jaga malam. | ✅ |
+| | 📱 **PWA Ready** | Aplikasi dapat diinstall langsung di perangkat Android/iOS (Native feel). | ✅ |
+| | ⚙️ **Dynamic Config** | Pengaturan parameter sistem (GPS, Radius, Nama) langsung dari UI. | ✅ |
+| | 💾 **System Backup** | Fitur kompresi data dan storage menjadi arsip ZIP dalam satu klik. | ✅ |
 
 ---
 
-## ⚙️ Panduan Instalasi dan Setup
+## 🛠️ Tumpukan Teknologi (Tech Stack)
 
-Pastikan lingkungan lokal Anda memenuhi prasyarat berikut:
-- **PHP >= 8.2**
-- **Composer**
-- **Node.js & NPM**
-- **Database** (e.g., MySQL, MariaDB)
+- **Framework:** Laravel 12 (The latest & most secure)
+- **Frontend:** Livewire 4 + Alpine.js (Reactive UI)
+- **Styling:** Tailwind CSS (Enterprise Design System)
+- **Database:** SQLite (Default) / MySQL / PostgreSQL
+- **Reporting:** Barryvdh DOMPDF
+- **Visualization:** Chart.js
 
-### 1. Clone Repositori
+---
+
+## ⚙️ Panduan Instalasi (Development)
+
+Pastikan lingkungan Anda memenuhi syarat: **PHP 8.2+**, **Composer**, **Node.js & NPM**.
+
+### 1. Kloning Repositori
 ```bash
-git clone https://github.com/aryadians/simpeg-lapas
+git clone https://github.com/aryadians/simpeg-lapas.git
 cd simpeg-lapas
 ```
 
-### 2. Konfigurasi Awal
+### 2. Instalasi Dependensi
 ```bash
-# Salin file environment. File ini bersifat sensitif dan tidak boleh masuk ke git.
-cp .env.example .env
-
-# Install dependensi PHP (backend)
 composer install
-
-# Install dependensi JavaScript (frontend)
 npm install
 ```
 
-### 3. Setup Aplikasi
+### 3. Konfigurasi Environment
 ```bash
-# Generate kunci enkripsi unik untuk aplikasi
+cp .env.example .env
 php artisan key:generate
-
-# Konfigurasi file .env Anda
-# Atur `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, dll.
-# Atur `OFFICE_LATITUDE` dan `OFFICE_LONGITUDE` sesuai lokasi Anda.
-
-# Jalankan migrasi database untuk membuat tabel-tabel yang diperlukan
-php artisan migrate
-
-# (Opsional) Seed database dengan data awal jika tersedia
-php artisan db:seed
 ```
 
-### 4. Menjalankan Aplikasi
-Aplikasi ini membutuhkan dua proses yang berjalan bersamaan.
+### 4. Setup Database & Seeding
+```bash
+# Membuat file database (jika menggunakan SQLite)
+touch database/database.sqlite
 
-- **Terminal 1: Jalankan Server Backend Laravel**
-  ```bash
-  php artisan serve
-  ```
+# Menjalankan migrasi dan data awal (Master Shift & Admin)
+php artisan migrate --seed
+```
 
-- **Terminal 2: Jalankan Server Frontend Vite**
-  ```bash
-  npm run dev
-  ```
-
-Buka browser Anda dan akses `http://127.0.0.1:8000`.
+### 5. Compile Assets & Run
+```bash
+npm run dev
+php artisan serve
+```
 
 ---
 
-## 📸 Tangkapan Layar (Placeholder)
+## 🚢 Panduan Deploy (Production)
 
-| Admin Dashboard | Jadwal Dinas |
-| :---: | :---: |
-| ![Admin Dashboard](https://placehold.co/600x400/e2e8f0/475569?text=Admin+Dashboard) | ![Jadwal](https://placehold.co/600x400/e2e8f0/475569?text=Jadwal+Dinas) |
+Untuk performa maksimal di server produksi, jalankan perintah optimasi:
 
-| Absensi dengan Selfie | Laporan Tukin |
-| :---: | :---: |
-| ![Absensi](https://placehold.co/600x400/e2e8f0/475569?text=Absensi+Selfie) | ![Tukin](https://placehold.co/600x400/e2e8f0/475569?text=Laporan+Tukin) |
+1.  **Build Frontend:** `npm run build`
+2.  **Optimize Laravel:** `php artisan optimize`
+3.  **Link Storage:** `php artisan storage:link`
+4.  **Security:** Atur `ALLOWED_IPS` di menu **Settings** untuk membatasi akses Admin.
+
+---
+
+## 🔐 Kredensial Default
+
+| Akun | Email | Password |
+| :--- | :--- | :--- |
+| **Administrator** | `admin@lapas.com` | `password` |
+| **Petugas (Staff)** | `staff@lapas.com` | `password` |
+
+*Catatan: OTP untuk Admin dapat dilihat sementara di `storage/logs/laravel.log` selama tahap development.*
+
+---
+
+<div align="center">
+    <p>Dikembangkan dengan ❤️ untuk kemajuan birokrasi digital Indonesia.</p>
+    <p><b>&copy; 2026 Institutional Perimeter Control System</b></p>
+</div>
