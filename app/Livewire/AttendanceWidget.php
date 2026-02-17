@@ -8,6 +8,8 @@ use App\Models\Roster;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class AttendanceWidget extends Component
 {
@@ -28,7 +30,7 @@ class AttendanceWidget extends Component
     public $selfie;
     
     protected $rules = [
-        'selfie' => 'required|image|max:5120', // 5MB Max
+        'selfie' => 'required', // Allow string (base64) or UploadedFile
     ];
 
     public function mount($todayRoster = null)
@@ -141,7 +143,22 @@ class AttendanceWidget extends Component
             $status = 'terlambat';
         }
         
-        $selfiePath = $this->selfie->store('selfies', 'public');
+        $selfiePath = '';
+
+        if (is_string($this->selfie) && strpos($this->selfie, 'data:image') === 0) {
+            // Handle Base64
+            $image = str_replace('data:image/jpeg;base64,', '', $this->selfie);
+            $image = str_replace(' ', '+', $image);
+            $imageName = 'selfies/' . Str::random(40) . '.jpg';
+            Storage::disk('public')->put($imageName, base64_decode($image));
+            $selfiePath = $imageName;
+        } elseif ($this->selfie instanceof \Illuminate\Http\UploadedFile) {
+            // Handle UploadedFile (Testing)
+            $selfiePath = $this->selfie->store('selfies', 'public');
+        } else {
+             $this->addError('selfie', 'Format foto tidak valid.');
+             return;
+        }
 
         Attendance::create([
             'user_id' => Auth::id(),
