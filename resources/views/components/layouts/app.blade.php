@@ -11,6 +11,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="manifest" href="/manifest.json">
     
     {{-- Custom Styles & Animations --}}
     <style>
@@ -110,6 +111,10 @@
                             <span class="text-lg group-hover:scale-110 transition-transform">📦</span>
                             <span class="whitespace-nowrap">Inventaris</span>
                         </a>
+                        <a href="/patroli" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->is('patroli*') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
+                            <span class="text-lg group-hover:scale-110 transition-transform">🛡️</span>
+                            <span class="whitespace-nowrap">Patroli</span>
+                        </a>
                         <a href="/cuti" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->is('cuti*') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
                             <span class="text-lg group-hover:scale-110 transition-transform">🏖️</span>
                             <span class="whitespace-nowrap">E-Cuti</span>
@@ -131,6 +136,10 @@
                             <span class="text-lg group-hover:scale-110 transition-transform">🚀</span>
                             <span class="whitespace-nowrap">Dashboard</span>
                         </a>
+                        <a href="{{ route('audit.logs') }}" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('audit.logs') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
+                            <span class="text-lg group-hover:scale-110 transition-transform">🔍</span>
+                            <span class="whitespace-nowrap">Audit Logs</span>
+                        </a>
                         <a href="{{ route('tukin.report') }}" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('tukin.*') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
                             <span class="text-lg group-hover:scale-110 transition-transform">💰</span>
                             <span class="whitespace-nowrap">Tukin</span>
@@ -146,6 +155,9 @@
                 {{-- KANAN: User Profile & Logout + Hamburger --}}
                 <div class="flex items-center gap-2">
                     <div class="hidden md:flex items-center gap-4">
+                        {{-- Panic Handler --}}
+                        <livewire:panic-handler />
+
                         {{-- Info User --}}
                         <div class="flex flex-col items-end mr-2">
                             <span class="text-sm font-bold text-gray-900">{{ auth()->user()->name ?? 'Guest' }}</span>

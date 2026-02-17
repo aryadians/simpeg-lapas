@@ -32,11 +32,23 @@ Route::middleware('auth')->group(function () {
     // Dashboard Utama (Jadwal & Absen)
     Route::get('/', RosterDashboard::class)->name('dashboard');
 
-    // Admin Dashboard
-    Route::get('/admin/dashboard', AdminDashboard::class)->name('admin.dashboard');
+    // Admin Group with IP Restriction
+    Route::middleware(['restrict-ip'])->group(function () {
+        // Admin Dashboard
+        Route::get('/admin/dashboard', AdminDashboard::class)->name('admin.dashboard');
 
-    // Manajemen Pegawai
-    Route::get('/pegawai', EmployeeManager::class)->name('pegawai');
+        // Manajemen Pegawai
+        Route::get('/pegawai', EmployeeManager::class)->name('pegawai');
+
+        // Laporan Tukin
+        Route::get('/laporan-tukin', TukinReport::class)->name('tukin.report');
+
+        // Plotting Regu & Pos Jaga
+        Route::get('/post-assignment', \App\Livewire\PostAssignment::class)->name('post.assignment');
+
+        // Audit Logs (Admin Only)
+        Route::get('/audit-logs', \App\Livewire\AuditLogViewer::class)->name('audit.logs');
+    });
 
     // Manajemen Inventaris
     Route::get('/inventaris', InventoryManager::class)->name('inventaris');
@@ -50,11 +62,11 @@ Route::middleware('auth')->group(function () {
     // Laporan Aplusan (Logbook)
     Route::get('/laporan', Logbook::class)->name('laporan');
 
-    // Laporan Tukin
-    Route::get('/laporan-tukin', TukinReport::class)->name('tukin.report');
+    // Tukar Dinas
+    Route::get('/tukar-dinas', \App\Livewire\ShiftExchangeRequest::class)->name('shift.exchange');
 
-    // Plotting Regu & Pos Jaga
-    Route::get('/post-assignment', \App\Livewire\PostAssignment::class)->name('post.assignment');
+    // Patroli (QR Checkpoint)
+    Route::get('/patroli', \App\Livewire\PatrolManager::class)->name('patrol');
 
     // Profil User (Ganti Password)
     Route::get('/profil', UserProfile::class)->name('profil');

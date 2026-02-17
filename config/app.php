@@ -136,4 +136,6 @@ return [
     'office_latitude' => env('OFFICE_LATITUDE', -6.2087634),
     'office_longitude' => env('OFFICE_LONGITUDE', 106.845599),
 
+    'allowed_ips' => env('ALLOWED_IPS', ''),
+
 ];
