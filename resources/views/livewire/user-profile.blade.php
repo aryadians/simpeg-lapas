@@ -84,6 +84,9 @@
                     </div>
                 </form>
             </div>
+
+            {{-- SESSION MANAGER --}}
+            <livewire:session-manager />
         </div>
     </div>
 </div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title ?? 'SIMPEG Lapas' }}</title>
+    <title>{{ $title ?? config('app.name') }}</title>
     
     {{-- CDN Libraries --}}
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
@@ -90,10 +90,10 @@
                     {{-- Logo --}}
                     <div class="shrink-0 flex items-center gap-3">
                         <div class="h-10 w-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-500/30">
-                            S
+                            {{ substr(config('app.name'), 0, 1) }}
                         </div>
-                        <span class="text-2xl font-extrabold text-gray-800 tracking-tight hidden md:block">
-                            SIMPEG <span class="text-indigo-600">Lapas</span>
+                        <span class="text-2xl font-extrabold text-gray-800 tracking-tight hidden md:block uppercase">
+                            {{ config('app.name') }}
                         </span>
                     </div>
 
@@ -131,9 +131,9 @@
                             <span class="text-lg group-hover:scale-110 transition-transform">📝</span>
                             <span class="whitespace-nowrap">Laporan Kejadian</span>
                         </a>
-                        <a href="/rekap-absensi" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('rekap') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
+                        <a href="/kalender-absen" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('attendance.calendar') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
                             <span class="text-lg group-hover:scale-110 transition-transform">📊</span>
-                            <span class="whitespace-nowrap">Rekap</span>
+                            <span class="whitespace-nowrap">Activity</span>
                         </a>
                         @if(auth()->check() && strtolower(trim(auth()->user()->role)) === 'admin')
                         <a href="{{ route('admin.dashboard') }}" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
@@ -151,6 +151,10 @@
                         <a href="{{ route('post.assignment') }}" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('post.assignment') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
                             <span class="text-lg group-hover:scale-110 transition-transform">📍</span>
                             <span class="whitespace-nowrap">Plotting Pos</span>
+                        </a>
+                        <a href="{{ route('settings') }}" wire:navigate class="group flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all {{ request()->routeIs('settings') ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-gray-500 hover:bg-gray-50 hover:text-indigo-600' }}">
+                            <span class="text-lg group-hover:scale-110 transition-transform">⚙️</span>
+                            <span class="whitespace-nowrap">Settings</span>
                         </a>
                         @endif
                     </div>

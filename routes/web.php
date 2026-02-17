@@ -48,6 +48,9 @@ Route::middleware('auth')->group(function () {
 
         // Audit Logs (Admin Only)
         Route::get('/audit-logs', \App\Livewire\AuditLogViewer::class)->name('audit.logs');
+
+        // System Settings
+        Route::get('/settings', \App\Livewire\SystemSettings::class)->name('settings');
     });
 
     // Manajemen Inventaris
@@ -64,6 +67,9 @@ Route::middleware('auth')->group(function () {
 
     // Tukar Dinas
     Route::get('/tukar-dinas', \App\Livewire\ShiftExchangeRequest::class)->name('shift.exchange');
+
+    // Attendance Calendar
+    Route::get('/kalender-absen', \App\Livewire\AttendanceCalendar::class)->name('attendance.calendar');
 
     // Patroli (QR Checkpoint)
     Route::get('/patroli', \App\Livewire\PatrolManager::class)->name('patrol');
